@@ -1,8 +1,8 @@
 <script lang="ts">
 	export let count: number;
 
-	$: big = nFormatter(count)[0];
-	$: suffix = nFormatter(count)[1];
+	$: big = count ? nFormatter(count)[0] : '?';
+	$: suffix = count ? nFormatter(count)[1] : '?';
 
 	function nFormatter(n: number) {
 		if (n >= 1000000) return [(n / 1000000).toFixed(1).replace(/\.0$/, ''), 'M'];
@@ -13,7 +13,7 @@
 
 <div class="inline-block float-right mt-2.5 mr-7">
 	<span class="text-5xl">{big}</span>
-	<span class="text-xl">{suffix}</span>
+	<span class="text-2xl">{suffix}</span>
 </div>
 
 <style>

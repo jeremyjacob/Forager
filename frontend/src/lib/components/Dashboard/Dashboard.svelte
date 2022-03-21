@@ -1,4 +1,5 @@
 <script lang="ts">
+	import List from './List.svelte';
 	import Tags from './Tags.svelte';
 	import DocumentCounter from './../DocumentCounter.svelte';
 	import Search from './Search.svelte';
@@ -6,14 +7,18 @@
 	import Background from '../Background.svelte';
 
 	export let data: DashboardData;
+	export let results: Results;
 
 	let still = true;
 </script>
 
-<div class="dashboard grid" class:fadeUp={!still}>
-	<main class="ml-7 h-screen pt-2">
-		<DocumentCounter count={12454355} />
-		<PageTitle title="dashboard" />
+<div class="dashboard grid overflow-hidden" class:fadeUp={!still}>
+	<main class="ml-7 h-screen pt-2 flex flex-col">
+		<div>
+			<DocumentCounter count={data.documentCount} />
+			<PageTitle title="dashboard" />
+		</div>
+		<List {results} />
 		<!-- <Search /> -->
 	</main>
 	<aside class="bg-white border-l">
@@ -44,6 +49,6 @@
 	}
 
 	.dashboard {
-		grid-template-columns: 1fr 0.352fr;
+		grid-template-columns: 1fr 0.27fr;
 	}
 </style>

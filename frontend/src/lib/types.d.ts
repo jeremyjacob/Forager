@@ -1,7 +1,21 @@
-interface Tags {
+interface TagsData {
 	[key: string]: string[];
 }
 
 interface DashboardData {
-	tags: Tags;
+	tags: TagsData;
+	documentCount: number;
+}
+
+interface Results {
+	results: Result[];
+	count: number;
+}
+
+interface Result {
+	domain: string;
+	fetches: number;
+	lock: boolean;
+	tags: string[];
+	snippets: {};
 }

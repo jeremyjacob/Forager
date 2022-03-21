@@ -1,4 +1,4 @@
-import { fade } from 'svelte/transition';
+import { crossfade, fade } from 'svelte/transition';
 import { cubicOut, quintOut } from 'svelte/easing';
 
 // export function letters(node, { i = 0 }) {
@@ -22,3 +22,21 @@ export function upIn(node, { duration = 170, delay = 0, distance = 6, easing = q
 		}
 	};
 }
+
+export const [send, receive] = crossfade({
+	duration: (d) => Math.sqrt(d * 600),
+
+	fallback(node, params) {
+		const style = getComputedStyle(node);
+		const transform = style.transform === 'none' ? '' : style.transform;
+
+		return {
+			duration: 600,
+			easing: quintOut,
+			css: (t) => `
+				transform: ${transform};
+				opacity: ${t}
+			`
+		};
+	}
+});

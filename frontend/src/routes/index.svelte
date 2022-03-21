@@ -10,11 +10,13 @@
 			};
 		}
 		const dashboardData = await (await fetch(origin + '/api/dashboard')).json();
+		const results = await (await fetch(origin + '/api/results')).json();
 
 		return {
 			props: {
 				user: session['user'],
-				data: dashboardData
+				data: dashboardData,
+				results
 			}
 		};
 	};
@@ -22,10 +24,11 @@
 
 <script lang="ts">
 	export let data: DashboardData;
+	export let results: Results;
 </script>
 
 <svelte:head>
 	<title>Forager!</title>
 </svelte:head>
 
-<Dashboard {data} />
+<Dashboard {data} {results} />

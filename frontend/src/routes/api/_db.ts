@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 import { generateSalt, hasher } from './_hasher';
 import type { User } from './types';
@@ -9,20 +9,27 @@ const url = `mongodb://jeremy:OlSW2Q91eSQrreiu@${isProd ? 'localhost:27017' : '5
 const client = new MongoClient(url);
 client.connect();
 
-async function col(name: string) {
+export async function col(name: string) {
 	const db = await client.db('forager');
 	return db.collection(name);
 }
 
+export async function getDomains(filter: object, lastPage?: string) {
+	const domains = await col('domains');
+	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
+	const found = domains.find(filter);
+	return found.limit(1000);
+}
+
 export async function getNumberDomains(filter: object = {}) {
 	const domains = await col('domains');
-	return domains.countDocuments(filter);
+	return domains.estimatedDocumentCount(filter);
 }
 
 export async function getTags() {
 	const reference = await col('reference');
 	const { tags } = await reference.findOne({ name: 'tags' });
-	return tags as TagsType;
+	return tags as TagsData;
 }
 
 // #region Auth Functions
