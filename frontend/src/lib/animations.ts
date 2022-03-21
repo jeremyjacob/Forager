@@ -9,7 +9,7 @@ import { cubicOut, quintOut } from 'svelte/easing';
 // 	};
 // }
 
-export function upIn(node, { duration = 150, delay = 0, distance = 4, easing = quintOut }) {
+export function upIn(node, { duration = 170, delay = 0, distance = 6, easing = quintOut }) {
 	return {
 		duration,
 		delay,

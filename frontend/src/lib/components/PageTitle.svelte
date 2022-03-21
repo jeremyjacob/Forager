@@ -1,6 +1,5 @@
 <script lang="ts">
-	export let delayed = false;
-
+	import { upIn } from '$lib/animations';
 	function capFirstLetter(string: string) {
 		return string.charAt(0).toUpperCase() + string.slice(1);
 	}
@@ -12,13 +11,7 @@
 	<title>Forager – {capFirstLetter(title)}</title>
 </svelte:head>
 
-<header class:delayed class="text text-4xl tracking-wider font-semibold mb-6 m-3">
+<header in:upIn class="text text-4xl tracking-wider font-semibold mb-4 m-3 ml-0 inline-block">
 	FORAGER
-	<div><span class="align-top text-xl text-white bg-black ">{title.toUpperCase()}</span></div>
+	<span class="align-middle text-xl text-white bg-black ">{title.toUpperCase()}</span>
 </header>
-
-<style>
-	header.delayed {
-		animation: 300ms flicker 1200ms reverse both;
-	}
-</style>

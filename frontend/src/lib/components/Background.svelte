@@ -23,7 +23,7 @@
 
 	@keyframes backgroundIn {
 		20% {
-			background-color: transparent;
+			background-color: #fafafa;
 			clip-path: polygon(0 0, 100% 0, 0% 100%, 0% 100%);
 		}
 
@@ -37,6 +37,13 @@
 			transform: translateY(0px);
 			clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 		}
+	}
+
+	anim-timer {
+		position: absolute;
+		animation-name: backgroundIn;
+		animation-duration: 1370ms;
+		animation-delay: 100ms;
 	}
 
 	.background {

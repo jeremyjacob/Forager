@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-
 import { MongoClient } from 'mongodb';
+
 import { generateSalt, hasher } from './_hasher';
 import type { User } from './types';
 
@@ -13,6 +13,19 @@ async function col(name: string) {
 	const db = await client.db('forager');
 	return db.collection(name);
 }
+
+export async function getNumberDomains(filter: object = {}) {
+	const domains = await col('domains');
+	return domains.countDocuments(filter);
+}
+
+export async function getTags() {
+	const reference = await col('reference');
+	const { tags } = await reference.findOne({ name: 'tags' });
+	return tags as TagsType;
+}
+
+// #region Auth Functions
 
 export async function getUserByEmail(email: string) {
 	const users = await col('users');
@@ -64,3 +77,5 @@ export async function removeSession(id) {
 	if (!session) return Promise.reject(new Error('Session not found'));
 	return session;
 }
+
+// #endregion

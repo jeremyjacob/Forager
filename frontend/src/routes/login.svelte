@@ -41,17 +41,16 @@
 	}
 </script>
 
-<PageTitle title="login" />
 <Background still />
-<div class="w-1/3 min-w-max m-auto flex flex-col justify-center">
-	<Login on:submit={handleSubmit} />
+<div class="ml-7 h-screen">
+	<PageTitle title="login" />
+	<div class="w-1/3 min-w-max m-auto flex flex-col justify-center h-[60%]">
+		<Login on:submit={handleSubmit} />
+	</div>
+	{#if error}
+		<p class="text-center"><span class="mt-3 bg-red-500 text-white px-0.5 text-center font-semibold">{error}</span></p>
+	{/if}
 </div>
-{#if error}
-	<p class="text-center"><span class="mt-3 bg-red-500 text-white px-0.5 text-center font-semibold">{error}</span></p>
-{/if}
 
 <style>
-	div {
-		height: 54%;
-	}
 </style>

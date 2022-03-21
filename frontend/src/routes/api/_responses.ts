@@ -32,7 +32,7 @@ export const INCORRECT_PW = () => ({
 });
 
 export const NOT_ENABLED = () => ({
-	status: 401,
+	status: 403,
 	body: {
 		message: 'Please return with the blessing of the Forager'
 	}
@@ -42,5 +42,12 @@ export const UNKNOWN_USER = () => ({
 	status: 401,
 	body: {
 		message: 'User does not exist. Sign up?'
+	}
+});
+
+export const UNAUTHENTICATED = () => ({
+	status: 401,
+	body: {
+		message: 'Authenticate to use this endpoint'
 	}
 });
