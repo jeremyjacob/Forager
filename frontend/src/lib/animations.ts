@@ -1,5 +1,5 @@
 import { crossfade, fade } from 'svelte/transition';
-import { cubicOut, quintOut } from 'svelte/easing';
+import { cubicOut, quintIn, quintOut } from 'svelte/easing';
 
 // export function letters(node, { i = 0 }) {
 // 	return {
@@ -9,15 +9,33 @@ import { cubicOut, quintOut } from 'svelte/easing';
 // 	};
 // }
 
-export function upIn(node, { duration = 170, delay = 0, distance = 6, easing = quintOut }) {
+export function upIn(
+	node,
+	{ duration = 170, delay = 0, distance = 6, easing = quintOut, disable = false }
+) {
+	return {
+		duration,
+		delay,
+		css: (t) => {
+			const e = easing(t);
+			return disable
+				? ''
+				: `
+			opacity: ${e};
+			transform: translateY(${distance * (1 - t)}px)
+			`;
+		}
+	};
+}
+
+export function squeeze(node, { duration = 170, delay = 40, distance = 6, easing = quintOut }) {
 	return {
 		duration,
 		delay,
 		css: (t) => {
 			const e = easing(t);
 			return `
-			opacity: ${e};
-			transform: translateY(${distance * (1 - t)}px)
+			transform: transformX(${e}rem);
 			`;
 		}
 	};

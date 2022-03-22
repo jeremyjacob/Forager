@@ -1,3 +1,9 @@
+type UITag = {
+	name: string;
+	inverted: boolean;
+	selected: boolean;
+};
+
 type TagsData = {
 	[key: string]: string[];
 };
@@ -8,8 +14,8 @@ type DashboardData = {
 };
 
 type Results = {
-	results: Result[];
-	count: number;
+	results?: Result[];
+	count?: number;
 };
 
 type Result = {

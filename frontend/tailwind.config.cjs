@@ -130,6 +130,9 @@ const config = {
 		transitionDuration: {
 			DEFAULT: '210ms'
 		},
+		transitionTimingFunction: {
+			DEFAULT: 'cubic-bezier(.44,.1,.66,1)'
+		},
 		fontFamily: {
 			sans: ['"Work Sans"', 'sans-serif']
 		}

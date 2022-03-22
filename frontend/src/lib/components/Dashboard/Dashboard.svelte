@@ -20,7 +20,7 @@
 		<!-- <Search /> -->
 	</main>
 	<aside class="bg-white border-l">
-		<Tags tags={data?.tags} />
+		<Tags tagData={data?.tags} />
 	</aside>
 </div>
 <Background {loading} />
@@ -47,6 +47,6 @@
 	}
 
 	.dashboard {
-		grid-template-columns: 1fr 0.27fr;
+		grid-template-columns: 1fr minmax(15em, 0.27fr);
 	}
 </style>

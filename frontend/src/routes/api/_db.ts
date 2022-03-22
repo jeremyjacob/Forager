@@ -4,6 +4,9 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { generateSalt, hasher } from './_hasher';
 import type { User } from './types';
 
+const timeout = (prom: Promise<any>, time: number) =>
+	Promise.race([prom, new Promise((_r, rej) => setTimeout(rej, time))]);
+
 const isProd = process.env.FORAGER_CHIEF == 'true';
 const url = `mongodb://jeremy:OlSW2Q91eSQrreiu@${
 	isProd ? 'localhost:27017' : '52.9.44.109:27017/'
@@ -25,7 +28,14 @@ export async function getDomains(filter: object, lastPage?: string) {
 
 export async function getNumberDomains(filter: object = {}) {
 	const domains = await col('domains');
-	return domains.estimatedDocumentCount(filter);
+	if (Object.keys(filter).length === 0) return domains.estimatedDocumentCount();
+	let count = 0;
+	try {
+		count = await timeout(domains.countDocuments(filter), 2000);
+	} catch (error) {
+		count = NaN;
+	}
+	return count;
 }
 
 export async function getTags() {

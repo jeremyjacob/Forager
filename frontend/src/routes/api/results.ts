@@ -1,4 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
+import type { WithId, Document } from 'mongodb';
 import queryString from 'query-string';
 import { getDomains, getNumberDomains } from './_db';
 import { UNAUTHENTICATED } from './_responses';
@@ -24,13 +25,13 @@ export const get: RequestHandler = async ({ locals, request }) => {
 	if (includes) filter.tags.$all = ensureString(includes);
 	if (excludes) filter.tags.$nin = ensureString(excludes);
 	if (!includes && !excludes) delete filter.tags;
-	const data = await getDomains(filter, lastPage);
+	// console.log(filter);
+	const body: { results?: WithId<Document>[]; count?: number } = {};
+	if (query.count) body.count = await getNumberDomains(filter);
+	else body.results = await (await getDomains(filter, lastPage)).toArray();
 
 	return {
 		status: 200,
-		body: {
-			results: await data.toArray(),
-			count: await getNumberDomains(filter)
-		}
+		body
 	};
 };
