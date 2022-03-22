@@ -1,21 +1,22 @@
-interface TagsData {
+type TagsData = {
 	[key: string]: string[];
-}
+};
 
-interface DashboardData {
+type DashboardData = {
 	tags: TagsData;
 	documentCount: number;
-}
+};
 
-interface Results {
+type Results = {
 	results: Result[];
 	count: number;
-}
+};
 
-interface Result {
+type Result = {
+	_id: string;
 	domain: string;
 	fetches: number;
 	lock: boolean;
 	tags: string[];
 	snippets: {};
-}
+};

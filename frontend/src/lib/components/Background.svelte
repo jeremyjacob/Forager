@@ -1,12 +1,12 @@
 <script lang="ts">
 	import DisplayTitle from './DisplayTitle.svelte';
 
-	export let still = false;
+	export let loading = true;
 </script>
 
 <div class="m-0 h-full w-full grid place-items-center absolute top-0 -z-10">
-	<div class="background absolute w-screen h-screen" class:anim={!still} />
-	{#if !still}
+	<div class="background absolute w-screen h-screen" class:anim={loading} />
+	{#if loading}
 		<DisplayTitle />
 	{/if}
 </div>
@@ -37,13 +37,6 @@
 			transform: translateY(0px);
 			clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 		}
-	}
-
-	anim-timer {
-		position: absolute;
-		animation-name: backgroundIn;
-		animation-duration: 1370ms;
-		animation-delay: 100ms;
 	}
 
 	.background {

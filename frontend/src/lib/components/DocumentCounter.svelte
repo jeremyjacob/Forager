@@ -1,6 +1,7 @@
 <script lang="ts">
-	export let count: number;
+	import { domainResults } from '$lib/stores';
 
+	$: count = $domainResults.count;
 	$: big = count ? nFormatter(count)[0] : '?';
 	$: suffix = count ? nFormatter(count)[1] : '?';
 

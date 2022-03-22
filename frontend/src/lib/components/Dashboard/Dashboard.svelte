@@ -2,30 +2,28 @@
 	import List from './List.svelte';
 	import Tags from './Tags.svelte';
 	import DocumentCounter from './../DocumentCounter.svelte';
-	import Search from './Search.svelte';
 	import PageTitle from '../PageTitle.svelte';
 	import Background from '../Background.svelte';
 
+	export let origin: string;
 	export let data: DashboardData;
-	export let results: Results;
-
-	let still = true;
+	let loading = false;
 </script>
 
-<div class="dashboard grid overflow-hidden" class:fadeUp={!still}>
+<div class="dashboard grid overflow-hidden" class:fadeUp={loading}>
 	<main class="ml-7 h-screen pt-2 flex flex-col">
 		<div>
-			<DocumentCounter count={data.documentCount} />
+			<DocumentCounter />
 			<PageTitle title="dashboard" />
 		</div>
-		<List {results} />
+		<List {origin} />
 		<!-- <Search /> -->
 	</main>
 	<aside class="bg-white border-l">
 		<Tags tags={data?.tags} />
 	</aside>
 </div>
-<Background {still} />
+<Background {loading} />
 
 <style>
 	@keyframes fadeUp {

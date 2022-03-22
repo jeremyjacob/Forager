@@ -5,7 +5,9 @@ import { generateSalt, hasher } from './_hasher';
 import type { User } from './types';
 
 const isProd = process.env.FORAGER_CHIEF == 'true';
-const url = `mongodb://jeremy:OlSW2Q91eSQrreiu@${isProd ? 'localhost:27017' : '52.9.44.109:27017/'}?authSource=forager`;
+const url = `mongodb://jeremy:OlSW2Q91eSQrreiu@${
+	isProd ? 'localhost:27017' : '52.9.44.109:27017/'
+}?authSource=forager`;
 const client = new MongoClient(url);
 client.connect();
 
@@ -18,7 +20,7 @@ export async function getDomains(filter: object, lastPage?: string) {
 	const domains = await col('domains');
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 	const found = domains.find(filter);
-	return found.limit(1000);
+	return found.limit(100);
 }
 
 export async function getNumberDomains(filter: object = {}) {
