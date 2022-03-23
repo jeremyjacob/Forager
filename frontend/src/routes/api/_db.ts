@@ -8,15 +8,20 @@ const timeout = (prom: Promise<any>, time: number) =>
 	Promise.race([prom, new Promise((_r, rej) => setTimeout(rej, time))]);
 
 const isProd = process.env.FORAGER_CHIEF == 'true';
-const url = `mongodb://jeremy:OlSW2Q91eSQrreiu@${
-	isProd ? 'localhost:27017' : '52.9.44.109:27017/'
-}?authSource=forager`;
+const url = `mongodb://sveltekit:OlSW2Q91eSQrreiu@${
+	isProd ? 'localhost:27017' : '52.9.44.109:27017'
+}?authSource=forager&readPreference=primary&appname=SvelteKit`;
 const client = new MongoClient(url);
-client.connect();
+console.log(url);
+run();
 
 export async function col(name: string) {
 	const db = await client.db('forager');
 	return db.collection(name);
+}
+
+export async function run() {
+	await client.connect();
 }
 
 export async function getDomains(filter: object, lastPage?: string) {

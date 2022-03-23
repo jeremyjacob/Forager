@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MachineControls from './MachineControls.svelte';
 	import List from './List.svelte';
 	import Tags from './Tags.svelte';
 	import DocumentCounter from './../DocumentCounter.svelte';
@@ -11,11 +12,12 @@
 </script>
 
 <div class="dashboard grid overflow-hidden" class:fadeUp={loading}>
-	<main class="ml-7 h-screen pt-2 flex flex-col">
+	<main class="ml-7 h-screen pt-2 flex flex-col relative">
 		<div>
 			<DocumentCounter />
 			<PageTitle title="dashboard" />
 		</div>
+		<MachineControls />
 		<List {origin} />
 		<!-- <Search /> -->
 	</main>
