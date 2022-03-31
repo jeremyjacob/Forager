@@ -20,16 +20,12 @@
 		};
 		const qs = stringify(query, { arrayFormat: 'comma' });
 		const res = await fetch(origin + '/api/results?' + qs);
-		return (await res.json()) as Results;
+		return (await res.json()) as Result[];
 	}
 	async function updateCount() {
-		const query = {
-			count: true,
-			...$domainFilter
-		};
-		const qs = stringify(query, { arrayFormat: 'comma' });
-		const res = await fetch(origin + '/api/results?' + qs);
-		const { count } = (await res.json()) as Results;
+		const qs = stringify({ ...$domainFilter }, { arrayFormat: 'comma' });
+		const res = await fetch(origin + '/api/count?' + qs);
+		const { count } = (await res.json()) as { count: number };
 		domainCount.set(count);
 	}
 
@@ -38,7 +34,7 @@
 			if (loading) return;
 			scrolled = true;
 			loading = true;
-			const lastPage = $domainResults.results.slice(-1)[0]._id;
+			const lastPage = $domainResults.slice(-1)[0]._id;
 			const results = await loadResults(lastPage);
 			domainResults.push(results);
 			loading = false;
@@ -56,10 +52,10 @@
 	onDestroy(unsubscriber);
 </script>
 
-<div class="overflow-scroll grow" on:scroll={scroll} bind:this={div}>
-	{#if $domainResults.results}
-		{#each $domainResults.results as result, i}
-			{@const n = $domainResults.results.length - i}
+<div class="overflow-y-scroll grow no-scroll" on:scroll={scroll} bind:this={div}>
+	{#if $domainResults}
+		{#each $domainResults as result, i}
+			{@const n = $domainResults.length - i}
 			{@const delay = 8}
 			<p
 				out:upIn={{ delay: (28 - i) * delay, distance: 6 }}

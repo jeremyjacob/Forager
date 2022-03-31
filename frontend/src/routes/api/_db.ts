@@ -3,16 +3,10 @@ import { MongoClient, ObjectId } from 'mongodb';
 
 import { generateSalt, hasher } from './_hasher';
 import type { User } from './types';
+import { timeout } from '$lib/utils';
 
-const timeout = (prom: Promise<any>, time: number) =>
-	Promise.race([prom, new Promise((_r, rej) => setTimeout(rej, time))]);
-
-const isProd = process.env.FORAGER_CHIEF == 'true';
-const url = `mongodb://sveltekit:OlSW2Q91eSQrreiu@${
-	isProd ? 'localhost:27017' : '52.9.44.109:27017'
-}?authSource=forager&readPreference=primary&appname=SvelteKit`;
+const url = `mongodb://sveltekit:OlSW2Q91eSQrreiu@forager.jeremyjacob.dev?authSource=forager&readPreference=primary&appname=SvelteKit`;
 const client = new MongoClient(url);
-console.log(url);
 run();
 
 export async function col(name: string) {
@@ -24,11 +18,11 @@ export async function run() {
 	await client.connect();
 }
 
-export async function getDomains(filter: object, lastPage?: string) {
+export async function getDomains(filter: object, count: number, lastPage?: string) {
 	const domains = await col('domains');
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 	const found = domains.find(filter);
-	return found.limit(100);
+	return found.limit(count);
 }
 
 export async function getNumberDomains(filter: object = {}) {
@@ -44,9 +38,26 @@ export async function getNumberDomains(filter: object = {}) {
 }
 
 export async function getTags() {
-	const reference = await col('reference');
-	const { tags } = await reference.findOne({ name: 'tags' });
-	return tags as TagsData;
+	const reference = await col('tags');
+	const { tags } = await reference.findOne({});
+	return tags as DataTag[];
+}
+
+export async function setTags(tags: DataTag[]) {
+	const reference = await col('tags');
+	return reference.updateOne({}, { $set: { tags } });
+}
+
+export async function setMachineControls(update) {
+	const workers = await col('workers');
+	const res = await workers.updateOne({ type: 'controller' }, update);
+	return res;
+}
+
+export async function getMachineControls() {
+	const workers = await col('workers');
+	const res = await workers.findOne({ type: 'controller' });
+	return res;
 }
 
 // #region Auth Functions

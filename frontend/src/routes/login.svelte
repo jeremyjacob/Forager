@@ -41,7 +41,7 @@
 	}
 </script>
 
-<Background still />
+<Background loading={false} />
 <div class="ml-7 h-screen">
 	<PageTitle title="login" />
 	<div class="w-1/3 min-w-max m-auto flex flex-col justify-center h-[60%]">

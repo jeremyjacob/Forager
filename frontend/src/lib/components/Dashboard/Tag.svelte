@@ -1,26 +1,48 @@
 <script lang="ts">
 	import MiniIcon from './MiniIcon.svelte';
 
-	export let tag: UITag;
-	export let tooltip: string;
-	export let click = () => {};
-	export let rClick = () => {};
+	export let tag: DataTag;
+
+	export let click = (event?: MouseEvent) => {};
+	export let rClick = (event?: MouseEvent) => {};
+
+	function handleClick(event: MouseEvent) {
+		if (event.button == 0) click(event);
+	}
 
 	const hashCode = (s: string) =>
 		Math.abs(
-			s.split('').reduce((a, b) => {
+			('l' + s).split('').reduce((a, b) => {
 				a = (a << 5) - a + b.charCodeAt(0);
 				return a & a;
 			}, 0) % 255
-		);
+		) / 258;
 </script>
 
-<div title={tooltip} on:click={click} on:contextmenu|preventDefault={rClick}>
+<div
+	title={tag?.keywords?.join(', ')}
+	on:mousedown={handleClick}
+	on:contextmenu|preventDefault={rClick}
+>
 	{#if tag.inverted}Not{/if}
-	<span class="select-none p-1" style:background-color={`hsl(${hashCode(tag.name)}, 89%, 89%)`}
-		>{tag.name}</span
-	>
+	<span class="select-none p-1 bg-{tag.color}-200">{tag.name}</span>
 </div>
+{#if false}
+	<do-nothing class="bg-lime-200" />
+	<do-nothing class="bg-green-200" />
+	<do-nothing class="bg-emerald-200" />
+	<do-nothing class="bg-azure-200" />
+	<do-nothing class="bg-blue-200" />
+	<do-nothing class="bg-cerise-200" />
+	<do-nothing class="bg-cyan-200" />
+	<do-nothing class="bg-yellow-200" />
+	<do-nothing class="bg-lemon-200" />
+	<do-nothing class="bg-violet-200" />
+	<do-nothing class="bg-indigo-200" />
+	<do-nothing class="bg-red-200" />
+	<do-nothing class="bg-orange-200" />
+	<do-nothing class="bg-gray-200" />
+{/if}
 
 <style>
 </style>

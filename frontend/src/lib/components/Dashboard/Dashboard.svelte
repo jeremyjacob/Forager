@@ -8,6 +8,8 @@
 
 	export let origin: string;
 	export let data: DashboardData;
+	export let tags: DataTag[];
+
 	let loading = false;
 </script>
 
@@ -17,12 +19,12 @@
 			<DocumentCounter />
 			<PageTitle title="dashboard" />
 		</div>
-		<MachineControls />
 		<List {origin} />
 		<!-- <Search /> -->
 	</main>
-	<aside class="bg-white border-l">
-		<Tags tagData={data?.tags} />
+	<aside class="bg-white border-l relative shadow-lg">
+		<Tags {tags} />
+		<MachineControls data={data?.machineControls} {origin} />
 	</aside>
 </div>
 <Background {loading} />
@@ -49,6 +51,6 @@
 	}
 
 	.dashboard {
-		grid-template-columns: 1fr minmax(15em, 0.27fr);
+		grid-template-columns: 1fr minmax(20em, 0.26fr);
 	}
 </style>

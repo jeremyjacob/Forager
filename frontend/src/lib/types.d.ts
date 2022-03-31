@@ -1,21 +1,23 @@
-type UITag = {
+type DataTag = {
 	name: string;
-	inverted: boolean;
-	selected: boolean;
+	color: string;
+	keywords: string[];
+	inverted?: boolean;
+	selected?: boolean;
+	time?: number;
 };
 
-type TagsData = {
-	[key: string]: string[];
+type MachineControls = {
+	desiredCount: number;
+	pendingCount: number;
+	runningCount: number;
+	filter: string;
+	running: boolean;
 };
 
 type DashboardData = {
-	tags: TagsData;
 	documentCount: number;
-};
-
-type Results = {
-	results?: Result[];
-	count?: number;
+	machineControls: MachineControls;
 };
 
 type Result = {

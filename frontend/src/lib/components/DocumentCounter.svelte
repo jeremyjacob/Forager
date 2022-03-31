@@ -12,7 +12,7 @@
 	}
 </script>
 
-<div class="inline-block float-right mt-2.5 mr-7 will-change-transform">
+<div class="inline-block absolute mt-2.5 right-8 will-change-transform">
 	<span class="text-5xl inline-block transition" class:translate-x-4={!suffix}>{big}</span>
 	<span
 		class="text-2xl inline-block transition w-4"

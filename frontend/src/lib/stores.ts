@@ -1,17 +1,14 @@
 import { writable } from 'svelte/store';
 
 function createResultStore() {
-	const { subscribe, set, update } = writable<Results>();
+	const { subscribe, set, update } = writable<Result[]>();
 
 	return {
 		subscribe,
 		set,
 		update,
-		push: (n: Results) => {
-			update((o) => ({
-				results: [...o.results, ...n.results],
-				count: n.count
-			}));
+		push: (n: Result[]) => {
+			update((o) => [...o, ...n]);
 		}
 	};
 }

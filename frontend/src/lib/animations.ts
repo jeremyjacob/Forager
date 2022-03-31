@@ -21,8 +21,8 @@ export function upIn(
 			return disable
 				? ''
 				: `
-			opacity: ${e};
-			transform: translateY(${distance * (1 - t)}px)
+			opacity: ${t};
+			transform: translateY(${distance * (1 - t)}px);
 			`;
 		}
 	};
@@ -43,11 +43,9 @@ export function squeeze(node, { duration = 170, delay = 40, distance = 6, easing
 
 export const [send, receive] = crossfade({
 	duration: (d) => Math.sqrt(d * 600),
-
 	fallback(node, params) {
 		const style = getComputedStyle(node);
 		const transform = style.transform === 'none' ? '' : style.transform;
-
 		return {
 			duration: 600,
 			easing: quintOut,

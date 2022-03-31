@@ -1,17 +1,17 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { parse } from 'cookie';
-import { getNumberDomains, getTags } from './_db';
+import { getMachineControls, getNumberDomains, getTags } from './_db';
+import { authCheck } from './_auth';
 import { UNAUTHENTICATED } from './_responses';
 
-export const get: RequestHandler = async ({ locals }) => {
-	if (!locals['user']) return UNAUTHENTICATED();
+export const get: RequestHandler = async (event) => {
+	if (!authCheck(event)) return UNAUTHENTICATED();
 
 	const documentCount = await getNumberDomains();
-	const tags = await getTags();
+	const machineControls = await getMachineControls();
 	return {
 		body: {
-			tags,
-			documentCount
+			documentCount,
+			machineControls
 		}
 	};
 };
