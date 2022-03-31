@@ -1,0 +1,21 @@
+Assessment:
+CPU and Memory usage are minimal. It's likely that the forager would benefit from multiple, lower tiered VM instances. As each has their own network stack and IP address. Coordinating multiple foragers will be interesting but doable. The solution will likely involve the foragers interfacing with a sort of tribe chief, running a MongoDB database. The chief's database will also serve as the central domain tagging system.
+
+Logged data from a sample of 996 high ranking websites:
+
+1000 concurrent
+Completed in 20.03 sec. 45/996 failed.
+
+500 concurrent
+Completed in 26.65 sec. 24/996 failed.
+
+250 concurrent
+Completed in 30.04 sec. 18/996 failed.
+
+100 concurrent
+Completed in 31.94 sec. 20/996 failed.
+
+10 concurrent
+Completed in 109.03 sec. 19/996 failed.
+
+This information is to be taken with a grain of salt due to the small sample size and limited testing, but gives an idea of what kind of consequences exist for high speed op. I set a timeout of 20 seconds. That's why the 1000 concurrent finished at exactly that time. If a website takes more than 20 seconds to load, we can ignore it. With this artificially  high timeout
