@@ -35,20 +35,10 @@ export const get: RequestHandler = async (event) => {
 	const { query } = queryString.parseUrl(event.request.url, { arrayFormat: 'comma' });
 	const limit = parseInt(unArray(query.limit) || '100');
 	const lastPage = unArray(query.lastPage);
-	const stripped = !!query.stripped;
-	const scrapable = !!query.scrapable;
 	const filter = makeFilter(query);
-	const date = new Date();
-	date.setMinutes(date.getMinutes() - 1); // 1 Minute ago
-	if (scrapable) {
-		filter.fetches = { $not: { $gte: FETCHES_TARGET } };
-		filter.lock = { $not: { $gt: date } };
-	}
 
 	const data = await (await getDomains(filter, limit, unArray(lastPage))).toArray();
-	let body: WithId<Document>[];
-	if (stripped) body = data.map(({ domain, _id }) => ({ domain, _id }));
-	else body = data;
+	let body: WithId<Document>[] = data;
 
 	return {
 		status: 200,

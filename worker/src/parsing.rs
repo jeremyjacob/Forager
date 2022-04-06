@@ -1,21 +1,19 @@
-use std::borrow::Cow;
-use std::cmp::{max, min};
-use std::collections::{BTreeMap};
+use std::collections::{BTreeMap, HashSet};
 use std::time::SystemTime;
-use aho_corasick::{AhoCorasickBuilder, Match};
+use aho_corasick::{AhoCorasickBuilder};
 use regex::{Regex};
-use crate::{CONTEXT_LENGTH, TagMatch};
+use crate::{TagMatch};
 
-pub fn parse_out_tags<'t>(domain: String, body: String, all_keywords: &Vec<&String>, tag_lengths: &BTreeMap<&String, usize>) -> Vec<String> {
+pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std::string::String>, tag_lengths: &'a BTreeMap<&'a std::string::String, usize>) -> HashSet<TagMatch> {
     let mut now = SystemTime::now();
     let tag_stripper = Regex::new(r"(?is:(<!--(.*?)-->)|(<script(.*?)</script>)|(<style(.*?)</style>)|(<(.*?)>))").unwrap(); // doesnt match multiline for some reason #TODO
-    println!("Stripped {} in {:.2}ms", &domain, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
+    // println!("Stripped {} in {:.2}ms", &id, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
     now = SystemTime::now();
     let cow = tag_stripper.replace_all(body.as_str(), " ");
-    println!("Replaced {} in {:.2}ms", &domain, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
+    // println!("Replaced {} in {:.2}ms", &id, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
     now = SystemTime::now();
 
-    let matches:
+    let mut matches = HashSet::new();
 
     // println!("{}", cow);
     let ac = AhoCorasickBuilder::new()
@@ -30,16 +28,12 @@ pub fn parse_out_tags<'t>(domain: String, body: String, all_keywords: &Vec<&Stri
 
         // Check if keyword is all caps and discard match if the match isn't all caps
         // println!("match");
-        // if keyword == &keyword.to_uppercase() && snippet != snippet.to_uppercase() { continue; }
+        if keyword == &keyword.to_uppercase() && snippet != snippet.to_uppercase() { continue; }
 
         match find_tag_name(tag_lengths, pattern) {
             Some(tag) => {
-                let tag_match = TagMatch {
-                    tag,
-                    keyword,
-                };
-                println!("{:?}", tag_match);
-
+                let tag_match = TagMatch { tag: tag.clone(), keyword: keyword.clone(), id: id.clone() };
+                matches.insert(tag_match);
             }
             None => {}
         }
@@ -47,7 +41,7 @@ pub fn parse_out_tags<'t>(domain: String, body: String, all_keywords: &Vec<&Stri
 
     // println!("Parsed {} in {:.2}ms", &domain, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
 
-    vec![]
+    matches
 }
 
 fn find_tag_name<'a>(tag_lengths: &'a BTreeMap<&'a String, usize>, pattern: i32) -> Option<&'a String> {
@@ -58,7 +52,7 @@ fn find_tag_name<'a>(tag_lengths: &'a BTreeMap<&'a String, usize>, pattern: i32)
             return Some(*tag);
         }
     }
-    println!("find_tag_name {}", total_length);
+    // println!("find_tag_name {}", total_length);
     None
 }
 

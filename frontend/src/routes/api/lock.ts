@@ -1,0 +1,1 @@
+// fetching scraper versions of domain should put a lock on them

@@ -1,7 +1,9 @@
-use std::collections::{BTreeMap};
+use std::collections::{BTreeMap, HashSet};
+use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 
 pub type Tags = BTreeMap<String, Vec<String>>;
+pub type MatchQueue<'a> = Arc<Mutex<HashSet<TagMatch>>>;
 
 #[derive(Debug, Serialize, Deserialize)]
 // #[serde(tag = "type")]
@@ -17,8 +19,9 @@ pub struct Tag {
     pub keywords: Vec<String>,
 }
 
-#[derive(Debug)]
-pub struct TagMatch<'a> {
-    pub tag: &'a String,
-    pub keyword: &'a String,
+#[derive(Debug, Hash, Eq, PartialEq)]
+pub struct TagMatch {
+    pub id: String,
+    pub tag: String,
+    pub keyword: String,
 }

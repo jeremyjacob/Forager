@@ -33,7 +33,6 @@ export const get: RequestHandler = async () => {
 						keywords: (prop?.Keywords?.rich_text[0]?.plain_text.split(', ') as string[]) || []
 					};
 					obj.keywords = obj.keywords.map((k) => k.trim()).filter((k) => k != '');
-					console.log(obj.keywords);
 					return obj;
 				})
 				.filter((t) => t.color && t.name)
