@@ -19,7 +19,7 @@ pub struct Tag {
     pub keywords: Vec<String>,
 }
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug, Hash, Eq, PartialEq, Serialize, Clone)]
 pub struct TagMatch {
     pub id: String,
     pub tag: String,

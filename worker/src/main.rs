@@ -1,3 +1,5 @@
+#![feature(async_closure)]
+
 use std::collections::{BTreeMap, HashSet};
 use std::sync::{Arc, Mutex};
 use reqwest::{Client, header, Url};
@@ -5,7 +7,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, SystemTime};
 use futures::stream::StreamExt;
 use reqwest::redirect::{Action, Attempt, Policy};
-use clokwerk::{Scheduler, TimeUnits};
+use clokwerk::{AsyncScheduler, Scheduler, TimeUnits};
 use static_init::{dynamic};
 use reqwest::header::HeaderMap;
 
@@ -24,7 +26,7 @@ static FAILED: AtomicUsize = AtomicUsize::new(0);
 
 
 #[dynamic]
-static queued_matches: MatchQueue<'static> = Arc::new(Mutex::new(HashSet::new()));
+static QUEUED_MATCHES: MatchQueue<'static> = Arc::new(Mutex::new(HashSet::new()));
 
 #[dynamic]
 static HEADERS: HeaderMap = {
@@ -52,12 +54,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     // println!("{}", all_keywords);
     // return Ok(());
-    let mut scheduler = Scheduler::new();
-    scheduler.every(1.seconds()).run(|| {
-        post_results(&CLIENT, &queued_matches);
-        queued_matches.lock().unwrap().clear();
-    });
-    let thread_handle = scheduler.watch_thread(Duration::from_millis(100));
+
+    {
+        let mut scheduler = AsyncScheduler::new();
+        scheduler.every(1.seconds()).run(async || {
+            println!("Sched HEAD");
+            post_results().await;
+            QUEUED_MATCHES.lock().unwrap().clear();
+        });
+        tokio::spawn(async move {
+            loop {
+                scheduler.run_pending().await;
+                tokio::time::sleep(Duration::from_millis(100)).await;
+            }
+        });
+    }
 
     for i in 0..LIFETIME {
         let result: Vec<Domain> = get_domains(&CLIENT).await?;
@@ -68,7 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // };
         // let result = vec![test_domain];
 
-        fetch_all(result, &all_keywords, &tag_lengths, &queued_matches).await;
+        fetch_all(result, &all_keywords, &tag_lengths).await;
         // println!("{:?}", &all_keywords);
 
         let elapsed = now.elapsed()?;
@@ -77,9 +88,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // parse_out_tags("test.com".to_string(), "poppy and<style>\nNOPE\n</style> <P>NOPE2</P>pippin <STYLE>NOPE3</STYLE>Education poppy".to_string(), &all_keywords, &tag_lengths);
-    println!("{:?}", queued_matches.to_owned());
-    thread_handle.stop();
-    // post_results(&CLIENT, &queued_matches);
+    println!("{:?}", QUEUED_MATCHES.lock().unwrap());
+    // post_results(&CLIENT, &QUEUED_MATCHES);
     Ok(())
 }
 
@@ -110,7 +120,7 @@ fn redirect_policy(attempt: Attempt) -> Action {
 }
 
 
-async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>, tag_lengths: &'a BTreeMap<&String, usize>, queue: &MatchQueue<'static>) {
+async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>, tag_lengths: &'a BTreeMap<&String, usize>) {
     let fetches = futures::stream::iter(
         domains.into_iter().map(|result| {
             let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
@@ -123,8 +133,8 @@ async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>,
                                 // println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
                                 COMPLETED.fetch_add(1, Ordering::SeqCst);
                                 let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
-                                println!("FOUND {}: {:?}", result.domain, tags);
-                                queue.lock().unwrap().extend(tags);
+                                // println!("FOUND {}: {:?}", result.domain, tags);
+                                QUEUED_MATCHES.lock().unwrap().extend(tags);
                             }
                             Err(error) => {
                                 println!("ERROR reading {}: {:?}", result.domain, error);
