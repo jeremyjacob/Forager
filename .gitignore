@@ -3,3 +3,5 @@
 domains.txt
 Forager-Chief.pem
 /test
+/node_modules
+pnpm-lock.yaml
