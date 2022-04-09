@@ -20,11 +20,11 @@ jobs:
       run: rustup install nightly
     - name: Default Nightly
       run: rustup default nightly
-    - name: Log
-      run: tree .
     - name: Build
       working-directory: ./worker
       run: cargo build --verbose -r
+    - name: Log
+      run: tree .
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/*.*"
