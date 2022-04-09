@@ -10,19 +10,24 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  release:
+  build:
+
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl]
+
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUSTTARGET: ${{ matrix.target }}
-          TOOLCHAIN_VERSION: nightly
-          SRC_DIR: ./worker
-          EXTRA_FILES: ""
+    - uses: actions/checkout@v3
+    - name: Install Nightly
+      run: rustup install nightly
+    - name: Default Nightly
+      run: rustup default nightly
+    - name: Log
+      run: tree .
+    - name: Build
+      working-directory: ./worker
+      run: cargo build --verbose -r
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "worker/target/*.*"
+        name: Worker Binary
+        tag: ${{ github.run_id }}
+        token: ${{ secrets.GITHUB_TOKEN }}
