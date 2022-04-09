@@ -26,5 +26,6 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/*.*"
-        tag: ${{ github.ref }}
+        name: Worker Release \# ${{ github.run_id }}
+        tag: ${{ github.action }}
         token: ${{ secrets.GITHUB_TOKEN }}
