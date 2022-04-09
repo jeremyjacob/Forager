@@ -23,4 +23,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUSTTARGET: ${{ matrix.target }}
+          TOOLCHAIN_VERSION: nightly
+          SRC_DIR: ./worker
           EXTRA_FILES: ""
