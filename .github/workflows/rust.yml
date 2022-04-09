@@ -27,7 +27,7 @@ jobs:
       run: tree .
     - uses: ncipollo/release-action@v1
       with:
-        artifacts: "worker/target/*.*"
+        artifacts: "worker/target/release/forager"
         name: Worker Binary
         tag: ${{ github.run_id }}
         token: ${{ secrets.GITHUB_TOKEN }}
