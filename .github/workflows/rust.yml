@@ -26,5 +26,5 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/*.*"
-        bodyFile: "body.md"
+        tag: "worker"
         token: ${{ secrets.GITHUB_TOKEN }}
