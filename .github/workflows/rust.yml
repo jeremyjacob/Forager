@@ -17,8 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install Nightly
-      working-directory: ./worker
       run: rustup install nightly
+    - name: Default Nightly
+      run: rustup default nightly
     - name: Build
       working-directory: ./worker
-      run: cargo build +nightly --verbose
+      run: cargo build --verbose
