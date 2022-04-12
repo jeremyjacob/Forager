@@ -7,3 +7,9 @@ interface User {
 	salt: string;
 	enabled: boolean;
 }
+
+type WorkerTagMatch = {
+	id: string;
+	tag: string;
+	keyword: string;
+};

@@ -8,7 +8,6 @@
 
 	export let origin: string;
 	export let data: DashboardData;
-	export let tags: DataTag[];
 
 	let loading = false;
 </script>
@@ -23,7 +22,7 @@
 		<!-- <Search /> -->
 	</main>
 	<aside class="bg-white border-l relative shadow-lg">
-		<Tags {tags} />
+		<Tags />
 		<MachineControls data={data?.machineControls} {origin} />
 	</aside>
 </div>

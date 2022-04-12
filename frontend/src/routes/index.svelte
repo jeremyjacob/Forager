@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
 	import Dashboard from '$lib/components/Dashboard/Dashboard.svelte';
-	import { domainResults } from '$lib/stores';
+	import { domainResults, tags } from '$lib/stores';
 	import type { Load } from '@sveltejs/kit';
 
 	export const load: Load = async ({ session, url: { origin } }) => {
@@ -13,7 +13,9 @@
 
 		const opts: RequestInit = { credentials: 'include', headers: { cookie: session['cookie'] } };
 		const dashboardData = await (await fetch(origin + '/api/dashboard', opts)).json();
-		const tags = await (await fetch(origin + '/api/tags', opts)).json();
+		const tagsRes = await (await fetch(origin + '/api/tags', opts)).json();
+		tags.set(tagsRes);
+
 		const results = await (await fetch(origin + '/api/results', opts)).json();
 		domainResults.set(results);
 
@@ -33,7 +35,6 @@
 
 	export let data: DashboardData;
 	export let origin: string;
-	export let tags: DataTag[];
 	if (browser) origin = location.origin;
 </script>
 
@@ -41,4 +42,4 @@
 	<title>Forager!</title>
 </svelte:head>
 
-<Dashboard {data} {origin} {tags} />
+<Dashboard {data} {origin} />

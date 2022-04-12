@@ -13,5 +13,7 @@
 
 <header in:upIn class="text text-4xl tracking-wider font-semibold mb-4 m-3 ml-0 inline-block">
 	FORAGER
-	<span class="align-middle text-xl text-white bg-black ">{title.toUpperCase()}</span>
+	<span class="align-middle text-lg text-white bg-black mb-[0.35rem] px-1 inline-block"
+		>{title.toUpperCase()}</span
+	>
 </header>

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import MiniIcon from './MiniIcon.svelte';
-
 	export let tag: DataTag;
 
 	export let click = (event?: MouseEvent) => {};
 	export let rClick = (event?: MouseEvent) => {};
+	export let keywords: string[] = undefined;
 
 	function handleClick(event: MouseEvent) {
 		if (event.button == 0) click(event);
@@ -20,7 +19,7 @@
 </script>
 
 <div
-	title={tag?.keywords?.join(', ')}
+	title={(keywords || tag?.keywords)?.join(', ')}
 	on:mousedown={handleClick}
 	on:contextmenu|preventDefault={rClick}
 >

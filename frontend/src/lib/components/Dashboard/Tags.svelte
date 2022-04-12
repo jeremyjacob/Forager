@@ -5,20 +5,18 @@
 	import { receive, send } from '$lib/animations';
 	import { flip } from 'svelte/animate';
 
-	import { domainFilter } from '$lib/stores';
-
-	export let tags: DataTag[] = [];
+	import { domainFilter, tags } from '$lib/stores';
 
 	function updateFilter() {
 		domainFilter.update((f) => {
-			f.includes = tags.filter((t) => t.selected && !t.inverted).map((t) => t.name);
-			f.excludes = tags.filter((t) => t.selected && t.inverted).map((t) => t.name);
+			f.includes = $tags.filter((t) => t.selected && !t.inverted).map((t) => t.name);
+			f.excludes = $tags.filter((t) => t.selected && t.inverted).map((t) => t.name);
 			return f;
 		});
 	}
 
 	function invert(tag: DataTag, surpress = false) {
-		tags = tags.map((t) => {
+		$tags = $tags.map((t) => {
 			if (t.name == tag.name) t.inverted = !t.inverted;
 			return t;
 		});
@@ -26,7 +24,7 @@
 	}
 
 	function toggleTag(tag: DataTag, surpress = false) {
-		tags = tags.map((t) => {
+		$tags = $tags.map((t) => {
 			if (t.name == tag.name) {
 				t.selected = !t.selected;
 				if (t.selected) t.time = Date.now();
@@ -38,7 +36,7 @@
 	}
 
 	async function unselectAll() {
-		for (const tag of tags.filter((t) => t.selected)) {
+		for (const tag of $tags.filter((t) => t.selected)) {
 			toggleTag(tag, true);
 		}
 		updateFilter();
@@ -49,8 +47,8 @@
 
 <div class="p-6 pt-5 h-[calc(100vh-5rem)] relative flex flex-col overflow-hidden" draggable="false">
 	<tags-top>
-		<h1 class="text-3xl {tags.filter((t) => t.selected).length == 0 ? 'mb-3' : 'mb-0.5'}">Tags</h1>
-		{#if tags.filter((t) => t.selected).length}
+		<h1 class="text-3xl {$tags.filter((t) => t.selected).length == 0 ? 'mb-3' : 'mb-0.5'}">Tags</h1>
+		{#if $tags.filter((t) => t.selected).length}
 			<span
 				class="absolute right-6 top-6 transition text-gray-900  hover:text-red-700 cursor-pointer"
 				transition:fade={{ duration: 150 }}
@@ -72,9 +70,11 @@
 				</svg>
 			</span>
 		{/if}
-		{#if tags}
-			<!-- {(window.x = tags.filter((t) => t.selected).sort((a, b) => Number(a.time > b.time)))} -->
-			{#each tags.filter((t) => t.selected).sort((a, b) => Number(a.time - b.time)) as tag, i (tag)}
+		{#if $tags}
+			<!-- {(window.x = $tags.filter((t) => t.selected).sort((a, b) => Number(a.time > b.time)))} -->
+			{#each $tags
+				.filter((t) => t.selected)
+				.sort((a, b) => Number(a.time - b.time)) as tag, i (tag)}
 				<div
 					in:receive={{ key: tag }}
 					out:send={{ key: tag }}
@@ -84,7 +84,7 @@
 					<Tag {tag} click={() => toggleTag(tag)} rClick={() => invert(tag)} />
 				</div>
 			{/each}
-			{#if tags.filter((t) => t.selected).length == 0}
+			{#if $tags.filter((t) => t.selected).length == 0}
 				<h3 in:fade class="text-gray-400 text cursor-default select-none">
 					Select a tag to narrow search
 				</h3>
@@ -92,9 +92,9 @@
 			<hr class="my-3" />
 		{/if}
 	</tags-top>
-	{#if tags}
+	{#if $tags}
 		<div class="overflow-y-scroll pt-1">
-			{#each tags.filter((t) => !t.selected) as tag, i (tag)}
+			{#each $tags.filter((t) => !t.selected) as tag, i (tag)}
 				<div
 					in:receive={{ key: tag }}
 					out:send={{ key: tag }}

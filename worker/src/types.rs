@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 pub type Tags = BTreeMap<String, Vec<String>>;
 pub type MatchQueue<'a> = Arc<Mutex<HashSet<TagMatch>>>;
 
-#[derive(Debug, Serialize, Deserialize)]
 // #[serde(tag = "type")]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Domain {
     pub _id: String,
     pub domain: String,
@@ -21,7 +21,7 @@ pub struct Tag {
 
 #[derive(Debug, Hash, Eq, PartialEq, Serialize, Clone)]
 pub struct TagMatch {
-    pub id: String,
+    pub _id: String,
     pub tag: String,
     pub keyword: String,
 }

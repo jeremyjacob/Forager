@@ -2,12 +2,12 @@
 
 use std::collections::{BTreeMap, HashSet};
 use std::sync::{Arc, Mutex};
-use reqwest::{Client, header, Url};
+use reqwest::{Client, header};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, SystemTime};
 use futures::stream::StreamExt;
 use reqwest::redirect::{Action, Attempt, Policy};
-use clokwerk::{AsyncScheduler, Scheduler, TimeUnits};
+use clokwerk::{AsyncScheduler, TimeUnits};
 use static_init::{dynamic};
 use reqwest::header::HeaderMap;
 
@@ -24,9 +24,11 @@ mod communication;
 static COMPLETED: AtomicUsize = AtomicUsize::new(0);
 static FAILED: AtomicUsize = AtomicUsize::new(0);
 
-
 #[dynamic]
 static QUEUED_MATCHES: MatchQueue<'static> = Arc::new(Mutex::new(HashSet::new()));
+
+#[dynamic]
+static DOMAINS: Arc<Mutex<Vec<Domain>>> = Arc::new(Mutex::new(Vec::new()));
 
 #[dynamic]
 static HEADERS: HeaderMap = {
@@ -72,6 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for i in 0..LIFETIME {
         let result: Vec<Domain> = get_domains(&CLIENT).await?;
+        DOMAINS.lock().unwrap().clone_from(&result);
         println!("Domains {:?}", result);
         // let test_domain = Domain {
         //     _id: "".to_string(),
@@ -113,6 +116,19 @@ fn redirect_policy(attempt: Attempt) -> Action {
         //     tag: "".to_string(),
         //     keyword: "".to_string()
         // }
+        let domain = attempt.url().domain().unwrap_or("");
+        let search_result = DOMAINS.lock().unwrap().binary_search_by_key(&domain, |d| &*d.domain);
+        match search_result {
+            Err(_) => {}
+            Ok(index) => {
+                let tag_match = TagMatch {
+                    _id: DOMAINS.lock().unwrap().get(index).unwrap()._id.clone(),
+                    tag: "Redirects".to_string(),
+                    keyword: "".to_string(),
+                };
+                add_tag(tag_match);
+            }
+        }
         attempt.error("Too many redirects")
     } else if host != prev_host {
         attempt.error("Redirected to a different hostname")
@@ -130,7 +146,7 @@ async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>,
                     Ok(resp) => {
                         match resp.text().await {
                             Ok(text) => {
-                                // println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
+                                println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
                                 COMPLETED.fetch_add(1, Ordering::SeqCst);
                                 let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
                                 // println!("FOUND {}: {:?}", result.domain, tags);
@@ -139,7 +155,7 @@ async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>,
                             Err(error) => {
                                 println!("ERROR reading {}: {:?}", result.domain, error);
                                 let tag_match = TagMatch {
-                                    id: result._id,
+                                    _id: result._id,
                                     tag: "Unreadable".to_string(),
                                     keyword: "".to_string(),
                                 };
@@ -149,9 +165,9 @@ async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>,
                         }
                     }
                     Err(error) => {
-                        println!("ERROR downloading {}: {:?}", result.domain, error);
+                        // println!("ERROR downloading {}: {:?}", result.domain, error);
                         let tag_match = TagMatch {
-                            id: result._id,
+                            _id: result._id,
                             tag: "Unreadable".to_string(),
                             keyword: "".to_string(),
                         };

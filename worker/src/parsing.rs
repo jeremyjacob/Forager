@@ -32,7 +32,7 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
 
         match find_tag_name(tag_lengths, pattern) {
             Some(tag) => {
-                let tag_match = TagMatch { tag: tag.clone(), keyword: keyword.clone(), id: id.clone() };
+                let tag_match = TagMatch { tag: tag.clone(), keyword: keyword.clone(), _id: id.clone() };
                 matches.insert(tag_match);
             }
             None => {}

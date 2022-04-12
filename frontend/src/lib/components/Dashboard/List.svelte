@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Domain from './Domain.svelte';
+
 	import { upIn } from '$lib/animations';
 	import { domainCount, domainFilter, domainResults } from '$lib/stores';
 	import { stringify } from 'query-string';
@@ -34,7 +36,7 @@
 			if (loading) return;
 			scrolled = true;
 			loading = true;
-			const lastPage = $domainResults.slice(-1)[0]._id;
+			const lastPage = $domainResults.slice(-1)[0]?._id;
 			const results = await loadResults(lastPage);
 			domainResults.push(results);
 			loading = false;
@@ -52,17 +54,10 @@
 	onDestroy(unsubscriber);
 </script>
 
-<div class="overflow-y-scroll grow no-scroll" on:scroll={scroll} bind:this={div}>
+<div class="overflow-y-scroll grow mr-1.5" on:scroll={scroll} bind:this={div}>
 	{#if $domainResults}
 		{#each $domainResults as result, i}
-			{@const n = $domainResults.length - i}
-			{@const delay = 8}
-			<p
-				out:upIn={{ delay: (28 - i) * delay, distance: 6 }}
-				in:upIn={{ delay: i * delay, distance: -6, disable: scrolled }}
-			>
-				{result.domain}
-			</p>
+			<Domain {scrolled} {i} {result} />
 		{/each}
 	{/if}
 </div>

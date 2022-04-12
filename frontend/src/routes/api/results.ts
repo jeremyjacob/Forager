@@ -2,7 +2,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 import type { WithId, Document } from 'mongodb';
 import queryString from 'query-string';
 import { authCheck } from './_auth';
-import { getDomains, getNumberDomains } from './_db';
+import { getDomains, getNumberDomains, getTLDs } from './_db';
 import { UNAUTHENTICATED } from './_responses';
 
 function unArray(input: string | string[]) {
@@ -16,18 +16,21 @@ function array(input: string | string[]) {
 	return input;
 }
 
-export function makeFilter(query: queryString.ParsedQuery<string>) {
+export async function makeFilter(query: queryString.ParsedQuery<string>) {
 	const includes = query.includes;
 	const excludes = query.excludes;
-	const filter: any = { tags: {} };
+	const filter: any = { tags: {}, TLD: { $in: await getTLDs() } };
+	delete filter.TLD;
 
-	if (includes) filter.tags.$all = array(includes);
+	if (includes?.includes('All')) {
+		filter.tags.$exists = true;
+		filter.tags.$ne = [];
+	} else if (includes) filter.tags.$all = array(includes);
 	if (excludes) filter.tags.$nin = array(excludes);
 	if (!includes && !excludes) delete filter.tags;
 	return filter;
 }
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
-const FETCHES_TARGET = 1;
 
 export const get: RequestHandler = async (event) => {
 	if (!authCheck(event)) return UNAUTHENTICATED();
@@ -35,7 +38,8 @@ export const get: RequestHandler = async (event) => {
 	const { query } = queryString.parseUrl(event.request.url, { arrayFormat: 'comma' });
 	const limit = parseInt(unArray(query.limit) || '100');
 	const lastPage = unArray(query.lastPage);
-	const filter = makeFilter(query);
+	const filter = await makeFilter(query);
+	console.log(filter);
 
 	const data = await (await getDomains(filter, limit, unArray(lastPage))).toArray();
 	let body: WithId<Document>[] = data;

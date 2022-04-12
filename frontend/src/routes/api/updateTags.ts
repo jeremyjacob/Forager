@@ -3,7 +3,7 @@ import { Client } from '@notionhq/client';
 import { setTags } from './_db';
 
 export const get: RequestHandler = async () => {
-	console.log('updateTags');
+	// console.log('updateTags');
 	const NOTION_SECRET = 'secret_C5zaRlv2TsQHaqI0oQL84m1tWW1W7tQhpfjZqUChCgf';
 	const DATABASE_ID = 'cf2066f1742a4ff7886d1fa2b1c40f08';
 	const notion = new Client({

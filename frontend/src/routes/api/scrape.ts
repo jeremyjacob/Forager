@@ -26,9 +26,9 @@ export const get: RequestHandler = async (event) => {
 	const { query } = queryString.parseUrl(event.request.url, { arrayFormat: 'comma' });
 	const limit = parseInt(unArray(query.limit) || '100');
 	const lastPage = unArray(query.lastPage);
-	const filter = makeFilter(query);
+	const filter = await makeFilter(query);
 	const date = new Date();
-	date.setMinutes(date.getMinutes() - 1); // 1 Minute ago
+	date.setMinutes(date.getMinutes() - 3); // Lock expires in 3 minutes
 	filter.fetches = { $not: { $gte: FETCHES_TARGET } };
 	filter.lock = { $not: { $gt: date } };
 
