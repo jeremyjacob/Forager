@@ -1,0 +1,33 @@
+name: Rust
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Nightly
+      run: rustup install nightly
+    - name: Default Nightly
+      run: rustup default nightly
+    - name: Build
+      working-directory: ./worker
+      run: cargo build --verbose -r
+    - name: Log
+      run: tree .
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "worker/target/release/forager"
+        name: Worker Binary
+        tag: ${{ github.run_id }}
+        token: ${{ secrets.GITHUB_TOKEN }}
