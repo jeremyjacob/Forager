@@ -1,12 +1,23 @@
 import { v4 as uuidv4 } from 'uuid';
-import { MongoClient, ObjectId, type AnyBulkWriteOperation } from 'mongodb';
+import {
+	FindCursor,
+	MongoClient,
+	ObjectId,
+	type AnyBulkWriteOperation,
+	type WithId,
+	type Document
+} from 'mongodb';
 
 import { generateSalt, hasher } from './_hasher';
 import type { User, WorkerTagMatch } from './types';
 import { timeout } from '$lib/utils';
 
-const url = `mongodb://sveltekit:OlSW2Q91eSQrreiu@forager.jeremyjacob.dev?authSource=forager&readPreference=primary&appname=SvelteKit`;
-const client = new MongoClient(url);
+const url = `mongodb://sveltekit:lSceHNBzYREqZbLj@52.9.44.109?authSource=forager&replicaSet=rs&readPreference=primary&appname=SvelteKit`;
+const client = new MongoClient(url, {
+	connectTimeoutMS: 1000,
+	socketTimeoutMS: 1000,
+	serverSelectionTimeoutMS: 1000
+});
 run();
 
 export type DbDomain = {
@@ -30,11 +41,27 @@ export async function run() {
 	await client.connect();
 }
 
-export async function getDomains(filter: object, count: number, lastPage?: string) {
+export async function getDomains(
+	filter: object,
+	options: { limit: number; lastPage?: string; lock?: boolean }
+) {
+	const { limit: count, lastPage, lock } = options;
 	const domains = await col('domains');
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
-	const found = domains.find(filter);
-	return found.limit(count);
+
+	let results: WithId<Document>[];
+	const session = client.startSession();
+	try {
+		await session.withTransaction(async () => {
+			results = await domains.find(filter).limit(count).toArray();
+			if (lock) await domains.updateMany(filter, { $set: { lock: new Date() } }, { session });
+		});
+	} finally {
+		await session.endSession();
+		await client.close();
+	}
+
+	return results;
 }
 
 export async function getNumberDomains(filter: object = {}) {

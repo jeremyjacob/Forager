@@ -41,7 +41,7 @@ export const get: RequestHandler = async (event) => {
 	const filter = await makeFilter(query);
 	console.log(filter);
 
-	const data = await (await getDomains(filter, limit, unArray(lastPage))).toArray();
+	const data = await getDomains(filter, { limit, lastPage: unArray(lastPage) });
 	let body: WithId<Document>[] = data;
 
 	return {

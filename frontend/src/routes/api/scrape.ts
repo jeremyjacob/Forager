@@ -32,7 +32,7 @@ export const get: RequestHandler = async (event) => {
 	filter.fetches = { $not: { $gte: FETCHES_TARGET } };
 	filter.lock = { $not: { $gt: date } };
 
-	const data = await (await getDomains(filter, limit, unArray(lastPage))).toArray();
+	const data = await await getDomains(filter, { limit, lastPage: unArray(lastPage), lock: true });
 	let body = data.map(({ domain, _id }) => ({ domain, _id }));
 
 	return {
