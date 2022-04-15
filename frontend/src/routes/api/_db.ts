@@ -12,11 +12,12 @@ import { generateSalt, hasher } from './_hasher';
 import type { User, WorkerTagMatch } from './types';
 import { timeout } from '$lib/utils';
 
-const url = `mongodb://sveltekit:lSceHNBzYREqZbLj@52.9.44.109?authSource=forager&replicaSet=rs&readPreference=primary&appname=SvelteKit`;
+// const url = `mongodb://sveltekit:lSceHNBzYREqZbLj@52.9.44.109?authSource=forager&replicaSet=rs&readPreference=primary&appname=SvelteKit`;
+const url = `mongodb+srv://app:app-s773CAD2ORr85YKj@forager-cluster.szrph.mongodb.net/forager?authSource=admin&readPreference=primary&ssl=true`;
 const client = new MongoClient(url, {
-	connectTimeoutMS: 1000,
-	socketTimeoutMS: 1000,
-	serverSelectionTimeoutMS: 1000
+	connectTimeoutMS: 3000,
+	socketTimeoutMS: 3000,
+	serverSelectionTimeoutMS: 3000
 });
 run();
 
@@ -39,7 +40,10 @@ export async function col(name: string) {
 
 export async function run() {
 	await client.connect();
+	console.log('MongoClient connected.');
 }
+
+client.on('serverClosed', console.log);
 
 export async function getDomains(
 	filter: object,
@@ -54,11 +58,18 @@ export async function getDomains(
 	try {
 		await session.withTransaction(async () => {
 			results = await domains.find(filter).limit(count).toArray();
-			if (lock) await domains.updateMany(filter, { $set: { lock: new Date() } }, { session });
+			const resultIds = results.map((doc) => doc._id);
+			if (lock) {
+				await domains.updateMany(
+					{ _id: { $in: resultIds } },
+					{ $set: { lock: new Date() } },
+					{ session }
+				);
+			}
 		});
 	} finally {
 		await session.endSession();
-		await client.close();
+		// await client.close();
 	}
 
 	return results;
