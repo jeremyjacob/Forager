@@ -12,9 +12,12 @@ import { generateSalt, hasher } from './_hasher';
 import type { User, WorkerTagMatch } from './types';
 import { timeout } from '$lib/utils';
 
-// const url = `mongodb://sveltekit:lSceHNBzYREqZbLj@52.9.44.109?authSource=forager&replicaSet=rs&readPreference=primary&appname=SvelteKit`;
-const url = `mongodb+srv://app:app-s773CAD2ORr85YKj@forager-cluster.szrph.mongodb.net/forager?authSource=admin&readPreference=primary&ssl=true`;
-const client = new MongoClient(url, {
+const username = encodeURIComponent('<client certificate distinguished name>');
+const clusterUrl = 'forager-cluster.szrph.mongodb.net';
+const clientPEMFile = encodeURIComponent('<path to the client pem certificate file>');
+const authMechanism = 'MONGODB-X509';
+const uri = `mongodb+srv://${username}@${clusterUrl}/?authMechanism=${authMechanism}&tls=true&ssl=true&tlsCertificateKeyFile=${clientPEMFile}`;
+const client = new MongoClient(uri, {
 	connectTimeoutMS: 3000,
 	socketTimeoutMS: 3000,
 	serverSelectionTimeoutMS: 3000
