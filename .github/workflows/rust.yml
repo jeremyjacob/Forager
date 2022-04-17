@@ -22,7 +22,7 @@ jobs:
       run: rustup default nightly
     - name: Build
       working-directory: ./worker
-      run: cargo build --verbose -r
+      run: cargo build --verbose -r --target aarch64-unknown-linux-musl
     - name: Log
       run: tree .
     - uses: ncipollo/release-action@v1
