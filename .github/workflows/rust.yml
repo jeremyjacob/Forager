@@ -9,7 +9,9 @@ on:
 env:
   TARGET: armv7-unknown-linux-musleabihf
   CARGO_TERM_COLOR: always
-  OPENSSL_DIR: /usr/local/ssl
+ # OPENSSL_DIR: /usr/local/ssl
+  OPENSSL_LIB_DIR: /usr/lib/arm-linux-gnueabihf
+  OPENSSL_INCLUDE_DIR: /usr/include/openssl
   CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_LINKER: arm-linux-gnueabihf-ld
 
 jobs:
