@@ -20,6 +20,8 @@ jobs:
       run: rustup install nightly
     - name: Default Nightly
       run: rustup default nightly
+    - name: Add Target
+      run: rustup target add aarch64-unknown-linux-musl
     - name: Build
       working-directory: ./worker
       run: cargo build --verbose -r --target aarch64-unknown-linux-musl
