@@ -24,7 +24,7 @@ jobs:
     - name: Install Binutils
       run: sudo apt install binutils-arm-linux-gnueabihf
     - name: Install libssl-dev & pkg-config
-      run: sudo apt install libssl-dev pkg-config
+      run: sudo apt install libssl-dev pkg-config gcc-arm-linux-gnueabihf
     - name: Install Nightly
       run: rustup install nightly
     - name: Default Nightly
