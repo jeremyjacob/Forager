@@ -35,7 +35,7 @@ jobs:
       run: tree -L 4 /usr/lib
     - name: Build
       working-directory: ./worker
-      run: cargo build --verbose --release --target $TARGET
+      run: CC=arm-linux-gnueabihf-gcc cargo build --verbose --release --target $TARGET
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/release/forager"
