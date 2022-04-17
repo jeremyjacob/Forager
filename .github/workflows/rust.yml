@@ -9,6 +9,7 @@ on:
 env:
   TARGET: armv7-unknown-linux-musleabihf
   CARGO_TERM_COLOR: always
+  OPENSSL_DIR: /usr/local/ssl
   CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_LINKER: arm-linux-gnueabihf-ld
 
 jobs:
@@ -28,11 +29,11 @@ jobs:
       run: rustup default nightly
     - name: Add Target
       run: rustup target add $TARGET
+    - name: Log
+      run: tree /usr/local/ssl
     - name: Build
       working-directory: ./worker
       run: cargo build --verbose --release --target $TARGET
-    - name: Log
-      run: tree .
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/release/forager"
