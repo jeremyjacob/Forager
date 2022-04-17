@@ -30,7 +30,7 @@ jobs:
     - name: Add Target
       run: rustup target add $TARGET
     - name: Log
-      run: tree /usr/local/ssl
+      run: tree /usr
     - name: Build
       working-directory: ./worker
       run: cargo build --verbose --release --target $TARGET
