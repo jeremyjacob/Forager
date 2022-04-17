@@ -7,6 +7,7 @@ on:
     branches: [ main ]
 
 env:
+  TARGET: x86_64-unknown-linux-musl
   CARGO_TERM_COLOR: always
   CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_LINKER: arm-linux-gnueabihf-ld
 
@@ -26,10 +27,10 @@ jobs:
     - name: Default Nightly
       run: rustup default nightly
     - name: Add Target
-      run: rustup target add armv7-unknown-linux-musleabihf
+      run: rustup target add $TARGET
     - name: Build
       working-directory: ./worker
-      run: cargo build --verbose -r --target armv7-unknown-linux-musleabihf
+      run: cargo build --verbose -r --target $TARGET
     - name: Log
       run: tree .
     - uses: ncipollo/release-action@v1
