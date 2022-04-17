@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  TARGET: x86_64-unknown-linux-musl
+  TARGET: armv7-unknown-linux-musleabihf
   CARGO_TERM_COLOR: always
   CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_LINKER: arm-linux-gnueabihf-ld
 
@@ -20,8 +20,8 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install Binutils
       run: sudo apt install binutils-arm-linux-gnueabihf
-    - name: Install pkg-config
-      run: sudo apt install pkg-config
+    - name: Install libssl-dev
+      run: sudo apt install libssl-dev
     - name: Install Nightly
       run: rustup install nightly
     - name: Default Nightly
@@ -30,7 +30,7 @@ jobs:
       run: rustup target add $TARGET
     - name: Build
       working-directory: ./worker
-      run: cargo build --verbose -r --target $TARGET
+      run: cargo build --verbose --release --target $TARGET
     - name: Log
       run: tree .
     - uses: ncipollo/release-action@v1
