@@ -21,8 +21,8 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install Binutils
       run: sudo apt install binutils-arm-linux-gnueabihf
-    - name: Install libssl-dev
-      run: sudo apt install libssl-dev
+    - name: Install openssl
+      run: sudo apt install openssl
     - name: Install Nightly
       run: rustup install nightly
     - name: Default Nightly
@@ -30,7 +30,7 @@ jobs:
     - name: Add Target
       run: rustup target add $TARGET
     - name: Log
-      run: tree /usr
+      run: tree /usr/local/ssl
     - name: Build
       working-directory: ./worker
       run: cargo build --verbose --release --target $TARGET
