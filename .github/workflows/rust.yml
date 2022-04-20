@@ -7,7 +7,12 @@ on:
     branches: [ main ]
 
 env:
+  TARGET: armv7-unknown-linux-musleabihf
   CARGO_TERM_COLOR: always
+ # OPENSSL_DIR: /usr/local/ssl
+  #OPENSSL_LIB_DIR: /usr/lib/arm-linux-gnueabihf
+  #OPENSSL_INCLUDE_DIR: /usr/include/openssl
+  CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_LINKER: arm-linux-gnueabihf-ld
 
 jobs:
   build:
@@ -16,15 +21,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install Binutils
+      run: sudo apt install binutils-arm-linux-gnueabihf
+    - name: Install libssl-dev & pkg-config
+      run: sudo apt install libssl-dev pkg-config gcc-arm-linux-gnueabihf
     - name: Install Nightly
       run: rustup install nightly
     - name: Default Nightly
       run: rustup default nightly
+    - name: Add Target
+      run: rustup target add $TARGET
+    - name: Log
+      run: tree -L 4 /usr/lib
     - name: Build
       working-directory: ./worker
-      run: cargo build --verbose -r
-    - name: Log
-      run: tree .
+      run: CC=arm-linux-gnueabihf-gcc cargo build --verbose --release --target $TARGET
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/release/forager"
