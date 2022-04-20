@@ -12,9 +12,9 @@ import { generateSalt, hasher } from './_hasher';
 import type { User, WorkerTagMatch } from './types';
 import { timeout } from '$lib/utils';
 
-const username = encodeURIComponent('<client certificate distinguished name>');
+const username = 'app';
 const clusterUrl = 'forager-cluster.szrph.mongodb.net';
-const clientPEMFile = encodeURIComponent('<path to the client pem certificate file>');
+const clientPEMFile = encodeURIComponent('../../../X509-cert-3008062262061194077.pem');
 const authMechanism = 'MONGODB-X509';
 const uri = `mongodb+srv://${username}@${clusterUrl}/?authMechanism=${authMechanism}&tls=true&ssl=true&tlsCertificateKeyFile=${clientPEMFile}`;
 const client = new MongoClient(uri, {

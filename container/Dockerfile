@@ -1,13 +1,13 @@
 FROM arm64v8/alpine:3.14
 
-# Install cURL
-# RUN apk --no-cache add curl
+# You need libc6-compat, I guess
+RUN apk add --no-cache libc6-compat
 
 # Download forager binary
-# RUN curl -vLJ -o './forager' -H 'Authorization: token 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' 'ghcr.io/jeremyjacob/forager:latest' -O ./forager
-RUN wget -O 'forager' 'https://github.com/jeremyjacob/Forager/releases/latest/download/forager'
+RUN wget -O '/tmp/forager' 'https://github.com/jeremyjacob/Forager/releases/latest/download/forager'
 
 # Fix permissions
-RUN chmod +x ./forager
+# COPY /tmp/forager /app/forager
+RUN chmod +x /tmp/forager
 
-CMD ./forager
+ENTRYPOINT ./tmp/forager
