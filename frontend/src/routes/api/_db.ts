@@ -12,11 +12,8 @@ import { generateSalt, hasher } from './_hasher';
 import type { User, WorkerTagMatch } from './types';
 import { timeout } from '$lib/utils';
 
-const username = 'app';
-const clusterUrl = 'forager-cluster.szrph.mongodb.net';
-const clientPEMFile = encodeURIComponent('../../../X509-cert-3008062262061194077.pem');
-const authMechanism = 'MONGODB-X509';
-const uri = `mongodb+srv://${username}@${clusterUrl}/?authMechanism=${authMechanism}&tls=true&ssl=true&tlsCertificateKeyFile=${clientPEMFile}`;
+const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
 const client = new MongoClient(uri, {
 	connectTimeoutMS: 3000,
 	socketTimeoutMS: 3000,
