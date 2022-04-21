@@ -33,13 +33,13 @@ export async function makeFilter(query: queryString.ParsedQuery<string>) {
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
 
 export const get: RequestHandler = async (event) => {
-	if (!authCheck(event)) return UNAUTHENTICATED();
+	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(event.request.url, { arrayFormat: 'comma' });
 	const limit = parseInt(unArray(query.limit) || '100');
 	const lastPage = unArray(query.lastPage);
 	const filter = await makeFilter(query);
-	console.log(filter);
+	// console.log(filter);
 
 	const data = await getDomains(filter, { limit, lastPage: unArray(lastPage) });
 	let body: WithId<Document>[] = data;

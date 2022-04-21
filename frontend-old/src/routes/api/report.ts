@@ -5,7 +5,7 @@ import { reportBatch } from './_db';
 import { UNAUTHENTICATED } from './_responses';
 
 export const post: RequestHandler = async (event) => {
-	if (!authCheck(event)) return UNAUTHENTICATED();
+	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const json = (await event.request.json()) as WorkerTagMatch[];
 	const res = await reportBatch(json);

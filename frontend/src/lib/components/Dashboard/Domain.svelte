@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="mb-1"
+	class="mb-2"
 	out:upIn={{ delay: (28 - i) * delay, distance: 6 }}
 	in:upIn={{ delay: i * delay, distance: -6, disable: scrolled }}
 >
@@ -26,6 +26,9 @@
 					<Tag tag={tagf} keywords={result.snippets[tagName]} />
 				</div>
 			{/each}
+			{#if result.tags.length > 8}
+				...
+			{/if}
 		{/if}
 	</span>
 </div>

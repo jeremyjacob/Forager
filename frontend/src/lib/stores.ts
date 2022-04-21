@@ -14,6 +14,6 @@ function createResultStore() {
 }
 
 export const domainFilter = writable({ includes: [], excludes: [] });
-export const domainResults = createResultStore();
+export const domainResults = writable<Result[]>();
 export const domainCount = writable<number>();
 export const tags = writable<DataTag[]>();

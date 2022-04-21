@@ -2,12 +2,15 @@
 	import MachineControls from './MachineControls.svelte';
 	import List from './List.svelte';
 	import Tags from './Tags.svelte';
-	import DocumentCounter from './../DocumentCounter.svelte';
+	import DocumentCounter from '../DocumentCounter.svelte';
 	import PageTitle from '../PageTitle.svelte';
 	import Background from '../Background.svelte';
 
-	export let origin: string;
-	export let data: DashboardData;
+	let data: DashboardData;
+
+	(async () => {
+		data = await (await fetch('api/dashboard')).json();
+	})();
 
 	let loading = false;
 </script>
@@ -18,12 +21,12 @@
 			<DocumentCounter />
 			<PageTitle title="dashboard" />
 		</div>
-		<List {origin} />
+		<List />
 		<!-- <Search /> -->
 	</main>
 	<aside class="bg-white border-l relative shadow-lg">
 		<Tags />
-		<MachineControls data={data?.machineControls} {origin} />
+		<MachineControls data={data?.machineControls} />
 	</aside>
 </div>
 <Background {loading} />

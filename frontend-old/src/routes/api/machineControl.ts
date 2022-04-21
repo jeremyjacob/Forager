@@ -4,7 +4,7 @@ import { setMachineControls } from './_db';
 import { UNAUTHENTICATED } from './_responses';
 
 export const post: RequestHandler = async (event) => {
-	if (!authCheck(event)) return UNAUTHENTICATED();
+	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const json = await event.request.json();
 	const { desiredCount, running, filter } = json;

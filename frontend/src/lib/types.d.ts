@@ -23,8 +23,9 @@ type DashboardData = {
 type Result = {
 	_id: string;
 	domain: string;
-	fetches: number;
-	lock: boolean;
-	tags: string[];
-	snippets: {};
+	fetches: ?number;
+	lock: ?(Date | string);
+	tags: ?string[];
+	TLD: string;
+	snippets: ?any;
 };

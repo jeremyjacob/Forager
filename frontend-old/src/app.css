@@ -1,0 +1,57 @@
+/* Write your global styles here, in PostCSS syntax */
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	height: 100vh;
+}
+
+#svelte {
+	height: 100%;
+}
+
+@keyframes flicker {
+	0%,
+	19% {
+		opacity: 1;
+	}
+
+	20%,
+	33% {
+		opacity: 0;
+	}
+
+	34%,
+	49% {
+		opacity: 1;
+	}
+
+	50%,
+	74% {
+		opacity: 0;
+	}
+
+	75%,
+	100% {
+		opacity: 0;
+	}
+}
+
+::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+}
+
+.no-scroll::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background-color: rgba(192, 192, 192, 0.897);
+	/* -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5); */
+}

@@ -4,7 +4,7 @@ import { authCheck } from './_auth';
 import { UNAUTHENTICATED } from './_responses';
 
 export const get: RequestHandler = async (event) => {
-	if (!authCheck(event)) return UNAUTHENTICATED();
+	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	let tags = await getTags();
 	tags = tags.reverse();

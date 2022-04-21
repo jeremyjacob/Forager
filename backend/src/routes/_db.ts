@@ -10,7 +10,7 @@ import {
 
 import { generateSalt, hasher } from './_hasher';
 import type { User, WorkerTagMatch } from './types';
-import { timeout } from '$lib/utils';
+import { delay, timeout } from '$lib/utils';
 
 const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
@@ -19,7 +19,16 @@ const client = new MongoClient(uri, {
 	socketTimeoutMS: 3000,
 	serverSelectionTimeoutMS: 3000
 });
+let connected = false;
 run();
+
+function awaitConnect() {
+	if (connected) return;
+	return new Promise((resolve) => {
+		connected = true;
+		client.on('connectionReady', resolve);
+	});
+}
 
 export type DbDomain = {
 	_id: ObjectId;
@@ -41,14 +50,16 @@ export async function col(name: string) {
 export async function run() {
 	await client.connect();
 	console.log('MongoClient connected.');
+	var log = console.log;
 }
 
-client.on('serverClosed', console.log);
+// client.on('serverClosed', console.log);
 
 export async function getDomains(
 	filter: object,
 	options: { limit: number; lastPage?: string; lock?: boolean }
 ) {
+	await awaitConnect();
 	const { limit: count, lastPage, lock } = options;
 	const domains = await col('domains');
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
@@ -76,6 +87,7 @@ export async function getDomains(
 }
 
 export async function getNumberDomains(filter: object = {}) {
+	await awaitConnect();
 	const domains = await col('domains');
 	if (Object.keys(filter).length === 0) return domains.estimatedDocumentCount();
 	let count = 0;
@@ -88,12 +100,14 @@ export async function getNumberDomains(filter: object = {}) {
 }
 
 export async function getTLDs() {
+	await awaitConnect();
 	const reference = await col('ref');
 	const { tlds } = await reference.findOne({ name: 'tlds' });
 	return tlds as string[];
 }
 
 export async function getTags() {
+	await awaitConnect();
 	const reference = await col('ref');
 	const { tags } = await reference.findOne({ name: 'tags' });
 	const sorted = tags as DataTag[];
@@ -102,23 +116,27 @@ export async function getTags() {
 }
 
 export async function setTags(tags: DataTag[]) {
+	await awaitConnect();
 	const reference = await col('ref');
 	return reference.updateOne({ name: 'tags' }, { $set: { tags } }, { upsert: true });
 }
 
 export async function setMachineControls(update) {
+	await awaitConnect();
 	const workers = await col('workers');
 	const res = await workers.updateOne({ type: 'controller' }, update);
 	return res;
 }
 
 export async function getMachineControls() {
+	await awaitConnect();
 	const workers = await col('workers');
 	const res = await workers.findOne({ type: 'controller' });
 	return res;
 }
 
 export async function reportBatch(data: WorkerTagMatch[]) {
+	await awaitConnect();
 	const workers = await col('domains');
 	const batch: AnyBulkWriteOperation<{}>[] = data.map(({ id, tag, keyword }) => ({
 		updateOne: {
@@ -144,6 +162,7 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 // #region Auth Functions
 
 export async function getUserByEmail(email: string) {
+	await awaitConnect();
 	const users = await col('users');
 	const res = await users.findOne({ email });
 	if (!res) return null;
@@ -151,6 +170,7 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function registerUser(email: string, password: string): Promise<User> {
+	await awaitConnect();
 	const existingUser = await getUserByEmail(email);
 	if (existingUser) return Promise.reject(new Error('User already exists'));
 	const users = await col('users');
@@ -166,6 +186,7 @@ export async function registerUser(email: string, password: string): Promise<Use
 }
 
 export async function createSession(email, ip) {
+	await awaitConnect();
 	const expires = new Date();
 	expires.setDate(expires.getDate() + 7); // Expires in a week
 	const session = {
@@ -181,6 +202,7 @@ export async function createSession(email, ip) {
 }
 
 export async function getSession(id) {
+	await awaitConnect();
 	const sessions = await col('sessions');
 	const session = sessions.findOne({ id, expires: { $gte: new Date() } }); // Non-expired sessions for ID
 	if (!session) return null;
@@ -188,6 +210,7 @@ export async function getSession(id) {
 }
 
 export async function removeSession(id) {
+	await awaitConnect();
 	const sessions = await col('sessions');
 	const session = sessions.deleteOne({ id });
 	if (!session) return Promise.reject(new Error('Session not found'));

@@ -21,7 +21,7 @@ function array(input: string | string[]) {
 const FETCHES_TARGET = 1;
 
 export const get: RequestHandler = async (event) => {
-	if (!authCheck(event)) return UNAUTHENTICATED();
+	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(event.request.url, { arrayFormat: 'comma' });
 	const limit = parseInt(unArray(query.limit) || '100');
