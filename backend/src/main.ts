@@ -15,7 +15,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 	res.status(500).send(err.stack);
 });
 
-export const root = app.get('/', (req, res) => {
+export const root = app.get('/api', (req, res) => {
 	res.send('Hello Worldf');
 });
 
