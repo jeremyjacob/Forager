@@ -36,7 +36,9 @@ static HEADERS: HeaderMap = {
     let mut h = header::HeaderMap::new();
     h.insert(
         header::AUTHORIZATION,
-        header::HeaderValue::from_static(&*env::var("FORAGERKEY").expect("Enviroment variable FORAGERKEY missing!")),
+        header::HeaderValue::from_static(
+            &*env::var("FORAGER_API_KEY").expect("Enviroment variable FORAGER_API_KEY missing!"),
+        ),
     );
     h
 };
@@ -193,7 +195,7 @@ async fn fetch_all<'a, 's>(
             }
         }
     }))
-        .buffer_unordered(THREADS)
-        .collect::<Vec<()>>();
+    .buffer_unordered(THREADS)
+    .collect::<Vec<()>>();
     fetches.await;
 }
