@@ -3,6 +3,7 @@
 
 	import { upIn } from '$lib/animations';
 	import AnimatedNumber from './AnimatedNumber.svelte';
+	import { apiURL } from '$lib/config';
 
 	export let data: MachineControls;
 
@@ -12,11 +13,12 @@
 	$: {
 		if (!init) {
 			init = true;
-		} else {
+		} else if (data) {
 			displayCount;
-			fetch('api/machineControl', {
+			fetch(apiURL + 'machineControl', {
 				method: 'POST',
-				body: JSON.stringify(data),
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data)
 			});
 		}
 	}
@@ -25,17 +27,11 @@
 <div class="absolute bottom-0 w-full h-24 bg-white border-t p-6 pt-5">
 	<div class="flex">
 		<machine-count class="flex flex-row">
-			<span
-				class="cursor-pointer"
-				on:click={() => (data.running = !data.running)}
-			>
+			<span class="cursor-pointer" on:click={() => (data.running = !data.running)}>
 				<AnimatedNumber bind:number={displayCount} /></span
 			>
 			{#if data?.running}
-				<IncDec
-					inc={() => displayCount++}
-					dec={() => displayCount && displayCount--}
-				/>
+				<IncDec inc={() => displayCount++} dec={() => displayCount && displayCount--} />
 			{/if}
 			<!-- <h1 class="text">Gatherers</h1> -->
 		</machine-count>
@@ -45,9 +41,7 @@
 					Pages/s: <span>15,000</span>
 				</h1>
 			{:else}
-				<h1 in:upIn={{ duration: 250, delay: 250, distance: -6 }}>
-					Forager not running
-				</h1>
+				<h1 in:upIn={{ duration: 250, delay: 250, distance: -6 }}>Forager not running</h1>
 			{/if}
 		</machine-stats>
 	</div>

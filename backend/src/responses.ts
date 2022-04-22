@@ -1,13 +1,12 @@
-import { serialize } from 'cookie'
-import { Response } from 'express'
+import type { Response } from 'express';
 
 type CustomResponse = {
-	status: number
-	headers?: any
+	status: number;
+	headers?: any;
 	body: {
-		message: string
-	}
-}
+		message: string;
+	};
+};
 
 export const SIGNED_IN = (res: Response, id) =>
 	res
@@ -18,20 +17,30 @@ export const SIGNED_IN = (res: Response, id) =>
 			secure: process.env.NODE_ENV === 'production',
 			maxAge: 60 * 60 * 24 * 7, // one week
 		})
-		.redirect('/')
+		.redirect('/');
 
 export const INCORRECT_PW = (res: Response) =>
-	res.status(401).send({ message: 'Incorrect user or password' })
+	res.status(401).send({ message: 'Incorrect user or password' });
 
 export const NOT_ENABLED = (res: Response) =>
 	res
 		.status(403)
-		.send({ message: 'Please return with the blessing of the Forager' })
+		.send({ message: 'Please return with the blessing of the Forager' });
 
 export const UNKNOWN_USER = (res: Response) =>
-	res.status(401).send({ message: 'User does not exist. Sign up?' })
+	res.status(401).send({ message: 'User does not exist. Sign up?' });
 
 export const UNAUTHENTICATED = (res: Response) =>
 	res.status(401).send({
 		message: 'Authenticate to use this endpoint',
-	})
+	});
+
+export const NO_BODY = (res: Response) =>
+	res.status(400).send({
+		message: 'No body provided',
+	});
+
+export const BAD_BODY = (res: Response) =>
+	res.status(400).send({
+		message: 'Invalid body provided',
+	});

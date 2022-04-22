@@ -1,9 +1,9 @@
 import { Client } from '@notionhq/client';
-import { app } from '../main';
-import { DataTag } from './types';
-import { setTags } from './_db';
+import { root } from '../main';
+import type { DataTag } from '../types';
+import { setTags } from '../db';
 
-app.get('updateTags', async (req, res) => {
+root.get('/updateTags', async (req, res) => {
 	// console.log('updateTags');
 	const NOTION_SECRET = 'secret_C5zaRlv2TsQHaqI0oQL84m1tWW1W7tQhpfjZqUChCgf';
 	const DATABASE_ID = 'cf2066f1742a4ff7886d1fa2b1c40f08';

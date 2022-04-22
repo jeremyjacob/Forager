@@ -1,25 +1,26 @@
 #![feature(async_closure)]
 
-use std::collections::{BTreeMap, HashSet};
-use std::sync::{Arc, Mutex};
-use reqwest::{Client, header};
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::time::{Duration, SystemTime};
-use futures::stream::StreamExt;
-use reqwest::redirect::{Action, Attempt, Policy};
 use clokwerk::{AsyncScheduler, TimeUnits};
-use static_init::{dynamic};
+use futures::stream::StreamExt;
 use reqwest::header::HeaderMap;
+use reqwest::redirect::{Action, Attempt, Policy};
+use reqwest::{header, Client};
+use static_init::dynamic;
+use std::collections::{BTreeMap, HashSet};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, SystemTime};
 
 use crate::communication::*;
 use crate::config::*;
 use crate::parsing::parse_out_tags;
 use crate::types::*;
+use std::env;
 
-mod config;
-mod types;
-mod parsing;
 mod communication;
+mod config;
+mod parsing;
+mod types;
 
 static COMPLETED: AtomicUsize = AtomicUsize::new(0);
 static FAILED: AtomicUsize = AtomicUsize::new(0);
@@ -33,7 +34,10 @@ static DOMAINS: Arc<Mutex<Vec<Domain>>> = Arc::new(Mutex::new(Vec::new()));
 #[dynamic]
 static HEADERS: HeaderMap = {
     let mut h = header::HeaderMap::new();
-    h.insert(header::AUTHORIZATION, header::HeaderValue::from_static(API_KEY));
+    h.insert(
+        header::AUTHORIZATION,
+        header::HeaderValue::from_static(&*env::var("FORAGERKEY").expect("Enviroment variable FORAGERKEY missing!")),
+    );
     h
 };
 
@@ -87,8 +91,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let elapsed = now.elapsed()?;
         let elapsed_s = elapsed.as_millis() as f64 / 1000.0;
-        println!("Completed in {:.2} sec. {} failed. {} completed.", elapsed_s, FAILED.fetch_add(0, Ordering::SeqCst), COMPLETED.fetch_add(0, Ordering::SeqCst));
-    };
+        println!(
+            "Completed in {:.2} sec. {} failed. {} completed.",
+            elapsed_s,
+            FAILED.fetch_add(0, Ordering::SeqCst),
+            COMPLETED.fetch_add(0, Ordering::SeqCst)
+        );
+    }
 
     // parse_out_tags("test.com".to_string(), "poppy and<style>\nNOPE\n</style> <P>NOPE2</P>pippin <STYLE>NOPE3</STYLE>Education poppy".to_string(), &all_keywords, &tag_lengths);
     println!("{:?}", QUEUED_MATCHES.lock().unwrap());
@@ -102,7 +111,7 @@ fn redirect_policy(attempt: Attempt) -> Action {
     let prev_host = {
         let first = attempt.previous().first();
         match first {
-            None => { "B" }
+            None => "B",
             Some(url) => {
                 url.host_str().unwrap_or("B") // different}
             }
@@ -117,7 +126,10 @@ fn redirect_policy(attempt: Attempt) -> Action {
         //     keyword: "".to_string()
         // }
         let domain = attempt.url().domain().unwrap_or("");
-        let search_result = DOMAINS.lock().unwrap().binary_search_by_key(&domain, |d| &*d.domain);
+        let search_result = DOMAINS
+            .lock()
+            .unwrap()
+            .binary_search_by_key(&domain, |d| &*d.domain);
         match search_result {
             Err(_) => {}
             Ok(index) => {
@@ -132,51 +144,56 @@ fn redirect_policy(attempt: Attempt) -> Action {
         attempt.error("Too many redirects")
     } else if host != prev_host {
         attempt.error("Redirected to a different hostname")
-    } else { attempt.follow() }
+    } else {
+        attempt.follow()
+    }
 }
 
-
-async fn fetch_all<'a, 's>(domains: Vec<Domain>, all_keywords: &'a Vec<&String>, tag_lengths: &'a BTreeMap<&String, usize>) {
-    let fetches = futures::stream::iter(
-        domains.into_iter().map(|result| {
-            let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
-            // println!("REQUEST: {}", &result.domain);
-            async move {
-                match send_fut.await {
-                    Ok(resp) => {
-                        match resp.text().await {
-                            Ok(text) => {
-                                println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
-                                COMPLETED.fetch_add(1, Ordering::SeqCst);
-                                let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
-                                // println!("FOUND {}: {:?}", result.domain, tags);
-                                QUEUED_MATCHES.lock().unwrap().extend(tags);
-                            }
-                            Err(error) => {
-                                println!("ERROR reading {}: {:?}", result.domain, error);
-                                let tag_match = TagMatch {
-                                    _id: result._id,
-                                    tag: "Unreadable".to_string(),
-                                    keyword: "".to_string(),
-                                };
-                                add_tag(tag_match);
-                                FAILED.fetch_add(1, Ordering::SeqCst);
-                            }
+async fn fetch_all<'a, 's>(
+    domains: Vec<Domain>,
+    all_keywords: &'a Vec<&String>,
+    tag_lengths: &'a BTreeMap<&String, usize>,
+) {
+    let fetches = futures::stream::iter(domains.into_iter().map(|result| {
+        let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
+        // println!("REQUEST: {}", &result.domain);
+        async move {
+            match send_fut.await {
+                Ok(resp) => {
+                    match resp.text().await {
+                        Ok(text) => {
+                            println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
+                            COMPLETED.fetch_add(1, Ordering::SeqCst);
+                            let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
+                            // println!("FOUND {}: {:?}", result.domain, tags);
+                            QUEUED_MATCHES.lock().unwrap().extend(tags);
+                        }
+                        Err(error) => {
+                            println!("ERROR reading {}: {:?}", result.domain, error);
+                            let tag_match = TagMatch {
+                                _id: result._id,
+                                tag: "Unreadable".to_string(),
+                                keyword: "".to_string(),
+                            };
+                            add_tag(tag_match);
+                            FAILED.fetch_add(1, Ordering::SeqCst);
                         }
                     }
-                    Err(error) => {
-                        // println!("ERROR downloading {}: {:?}", result.domain, error);
-                        let tag_match = TagMatch {
-                            _id: result._id,
-                            tag: "Unreadable".to_string(),
-                            keyword: "".to_string(),
-                        };
-                        add_tag(tag_match);
-                        FAILED.fetch_add(1, Ordering::SeqCst);
-                    }
+                }
+                Err(error) => {
+                    // println!("ERROR downloading {}: {:?}", result.domain, error);
+                    let tag_match = TagMatch {
+                        _id: result._id,
+                        tag: "Unreadable".to_string(),
+                        keyword: "".to_string(),
+                    };
+                    add_tag(tag_match);
+                    FAILED.fetch_add(1, Ordering::SeqCst);
                 }
             }
-        })
-    ).buffer_unordered(THREADS).collect::<Vec<()>>();
+        }
+    }))
+        .buffer_unordered(THREADS)
+        .collect::<Vec<()>>();
     fetches.await;
 }

@@ -5,11 +5,12 @@
 	import DocumentCounter from '../DocumentCounter.svelte';
 	import PageTitle from '../PageTitle.svelte';
 	import Background from '../Background.svelte';
+	import { apiURL } from '$lib/config';
 
 	let data: DashboardData;
 
 	(async () => {
-		data = await (await fetch('api/dashboard')).json();
+		data = await (await fetch(apiURL + 'dashboard')).json();
 	})();
 
 	let loading = false;

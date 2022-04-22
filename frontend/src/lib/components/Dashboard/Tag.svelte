@@ -4,6 +4,7 @@
 	export let click = (event?: MouseEvent) => {};
 	export let rClick = (event?: MouseEvent) => {};
 	export let keywords: string[] = undefined;
+	export let inverted = false;
 
 	function handleClick(event: MouseEvent) {
 		if (event.button == 0) click(event);
@@ -18,14 +19,16 @@
 		) / 258;
 </script>
 
-<div
-	title={(keywords || tag?.keywords)?.join(', ')}
-	on:mousedown={handleClick}
-	on:contextmenu|preventDefault={rClick}
->
-	{#if tag.inverted}Not{/if}
-	<span class="select-none p-1 bg-{tag.color}-200">{tag.name}</span>
-</div>
+{#if tag}
+	<div
+		title={(keywords || tag?.keywords)?.join(', ')}
+		on:mousedown={handleClick}
+		on:contextmenu|preventDefault={rClick}
+	>
+		{#if inverted}Not{/if}
+		<span class="select-none p-1 bg-{tag.color}-200">{tag.name}</span>
+	</div>
+{/if}
 {#if false}
 	<do-nothing class="bg-lime-200" />
 	<do-nothing class="bg-green-200" />

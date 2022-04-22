@@ -8,12 +8,12 @@ function createResultStore() {
 		set,
 		update,
 		push: (n: Result[]) => {
-			update((o) => [...o, ...n]);
+			update((o) => [...(o || []), ...n]);
 		}
 	};
 }
 
 export const domainFilter = writable({ includes: [], excludes: [] });
-export const domainResults = writable<Result[]>();
+export const domainResults = createResultStore();
 export const domainCount = writable<number>();
 export const tags = writable<DataTag[]>();

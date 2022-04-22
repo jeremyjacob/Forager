@@ -1,13 +1,13 @@
-import { createSession, getUserByEmail, registerUser } from './_db'
-import type { User } from './types'
-import { NOT_ENABLED, SIGNED_IN } from './_responses'
-import { request } from 'https'
-import { app } from '../main'
+import { createSession, getUserByEmail, registerUser } from '../db';
+import type { User } from '../types';
+import { NOT_ENABLED, SIGNED_IN } from '../responses';
+import { request } from 'https';
+import { root } from '../main';
 
-app.post('register', async (req, res) => {
+root.post('/register', async (req, res) => {
 	try {
-		const { email, password } = req.body
-		let user = (await getUserByEmail(email)) as User
+		const { email, password } = req.body;
+		let user = (await getUserByEmail(email)) as User;
 
 		if (user) {
 			return {
@@ -15,19 +15,19 @@ app.post('register', async (req, res) => {
 				body: {
 					message: `User already exists`,
 				},
-			}
+			};
 		}
 
-		user = await registerUser(email, password)
-		if (!user.enabled) return NOT_ENABLED(res)
+		user = await registerUser(email, password);
+		if (!user.enabled) return NOT_ENABLED(res);
 
-		const { id } = await createSession(email, req.ip)
-		return SIGNED_IN(res, id)
+		const { id } = await createSession(email, req.ip);
+		return SIGNED_IN(res, id);
 	} catch (error) {
-		console.error(error)
+		console.error(error);
 		return {
 			status: 500,
 			body: { message: error.toString() },
-		}
+		};
 	}
-})
+});

@@ -5,19 +5,20 @@ import {
 	ObjectId,
 	type AnyBulkWriteOperation,
 	type WithId,
-	type Document
+	type Document,
 } from 'mongodb';
 
-import { generateSalt, hasher } from './_hasher';
-import type { User, WorkerTagMatch } from './types';
-import { delay, timeout } from '$lib/utils';
+import { generateSalt, hasher } from './hasher';
+import type { DataTag, User, WorkerTagMatch } from './types';
+import { delay, timeout } from './utils';
 
+if (!process.env.MONGOPW) throw Error('MONGOPW not set!');
 const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
 	connectTimeoutMS: 3000,
 	socketTimeoutMS: 3000,
-	serverSelectionTimeoutMS: 3000
+	serverSelectionTimeoutMS: 3000,
 });
 let connected = false;
 run();
@@ -49,7 +50,7 @@ export async function col(name: string) {
 
 export async function run() {
 	await client.connect();
-	console.log('MongoClient connected.');
+	console.log('MongoClient connected');
 	var log = console.log;
 }
 
@@ -64,7 +65,7 @@ export async function getDomains(
 	const domains = await col('domains');
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 
-	let results: WithId<Document>[];
+	let results: WithId<Document>[] = undefined;
 	const session = client.startSession();
 	try {
 		await session.withTransaction(async () => {
@@ -89,7 +90,8 @@ export async function getDomains(
 export async function getNumberDomains(filter: object = {}) {
 	await awaitConnect();
 	const domains = await col('domains');
-	if (Object.keys(filter).length === 0) return domains.estimatedDocumentCount();
+	if (Object.keys(filter).length === 0)
+		return domains.estimatedDocumentCount();
 	let count = 0;
 	try {
 		count = await timeout(domains.countDocuments(filter), 2000);
@@ -118,13 +120,33 @@ export async function getTags() {
 export async function setTags(tags: DataTag[]) {
 	await awaitConnect();
 	const reference = await col('ref');
-	return reference.updateOne({ name: 'tags' }, { $set: { tags } }, { upsert: true });
+	return reference.updateOne(
+		{ name: 'tags' },
+		{ $set: { tags } },
+		{ upsert: true }
+	);
 }
 
-export async function setMachineControls(update) {
+export async function setMachineControls({
+	desiredCount,
+	running,
+}: {
+	desiredCount: number;
+	running: boolean;
+}) {
 	await awaitConnect();
 	const workers = await col('workers');
-	const res = await workers.updateOne({ type: 'controller' }, update);
+	const update = Object.assign(
+		{},
+		desiredCount && { desiredCount },
+		running && { running }
+	);
+	if (!Object.values(update).length) return null;
+
+	const res = await workers.updateOne(
+		{ type: 'controller' },
+		{ $set: update }
+	);
 	return res;
 }
 
@@ -138,23 +160,25 @@ export async function getMachineControls() {
 export async function reportBatch(data: WorkerTagMatch[]) {
 	await awaitConnect();
 	const workers = await col('domains');
-	const batch: AnyBulkWriteOperation<{}>[] = data.map(({ id, tag, keyword }) => ({
-		updateOne: {
-			filter: { _id: new ObjectId(id) },
-			update: {
-				$addToSet: {
-					tags: tag,
-					['snippets.' + tag]: keyword
+	const batch: AnyBulkWriteOperation<{}>[] = data.map(
+		({ id, tag, keyword }) => ({
+			updateOne: {
+				filter: { _id: new ObjectId(id) },
+				update: {
+					$addToSet: {
+						tags: tag,
+						['snippets.' + tag]: keyword,
+					},
+					$inc: {
+						fetches: 1,
+					},
+					$unset: {
+						lock: null,
+					},
 				},
-				$inc: {
-					fetches: 1
-				},
-				$unset: {
-					lock: null
-				}
-			}
-		}
-	}));
+			},
+		})
+	);
 	const res = await workers.bulkWrite(batch);
 	return res;
 }
@@ -169,7 +193,10 @@ export async function getUserByEmail(email: string) {
 	return res;
 }
 
-export async function registerUser(email: string, password: string): Promise<User> {
+export async function registerUser(
+	email: string,
+	password: string
+): Promise<User> {
 	await awaitConnect();
 	const existingUser = await getUserByEmail(email);
 	if (existingUser) return Promise.reject(new Error('User already exists'));
@@ -179,7 +206,7 @@ export async function registerUser(email: string, password: string): Promise<Use
 		email,
 		salt,
 		hash: hasher(password, salt),
-		enabled: false
+		enabled: false,
 	};
 	const res = await users.insertOne(data);
 	return { _id: res.insertedId, ...data };
@@ -193,7 +220,7 @@ export async function createSession(email, ip) {
 		id: uuidv4(),
 		email,
 		ip,
-		expires
+		expires,
 	};
 	const sessions = await col('sessions');
 

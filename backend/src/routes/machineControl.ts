@@ -1,20 +1,19 @@
-import { app } from '../main'
-import { authCheck } from './_auth'
-import { setMachineControls } from './_db'
-import { UNAUTHENTICATED } from './_responses'
+import { root } from '../main';
+import { authCheck } from '../auth';
+import { setMachineControls } from '../db';
+import { NO_BODY, UNAUTHENTICATED } from '../responses';
 
-app.post('machineControl', async (req, res) => {
-	if (!authCheck(req)) return UNAUTHENTICATED(res)
+root.post('/machineControl', async (req, res) => {
+	if (!authCheck(req)) return UNAUTHENTICATED(res);
+	if (!req.body) return NO_BODY(res);
 
-	const { desiredCount, running, filter } = req.body
-	const { acknowledged } = await setMachineControls({
-		$set: {
-			desiredCount,
-			running,
-		},
-	})
+	const { desiredCount, running, filter } = req.body;
+	const response = await setMachineControls({
+		desiredCount,
+		running,
+	});
 
-	res.status(acknowledged ? 200 : 500).send({
-		ok: acknowledged,
-	})
-})
+	res.status(response?.acknowledged ? 200 : 500).send({
+		ok: !!response?.acknowledged,
+	});
+});
