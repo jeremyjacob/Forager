@@ -1,10 +1,10 @@
-import { root } from '../main';
+import { app } from '../main';
 import type { WorkerTagMatch } from '../types';
 import { authCheck } from '../auth';
 import { reportBatch } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 
-root.post('/report', async (req, res) => {
+app.post('/api/report', async (req, res) => {
 	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const json = req.body as WorkerTagMatch[];

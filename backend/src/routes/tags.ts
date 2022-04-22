@@ -1,9 +1,9 @@
 import { getTags } from '../db';
 import { authCheck } from '../auth';
 import { UNAUTHENTICATED } from '../responses';
-import { root } from '../main';
+import { app } from '../main';
 
-root.get('/tags', async (req, res) => {
+app.get('/api/tags', async (req, res) => {
 	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	let tags = await getTags();

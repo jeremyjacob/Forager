@@ -8,9 +8,9 @@ import {
 	SIGNED_IN,
 	UNKNOWN_USER,
 } from '../responses';
-import { root } from '../main';
+import { app } from '../main';
 
-root.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const user = (await getUserByEmail(email)) as User;

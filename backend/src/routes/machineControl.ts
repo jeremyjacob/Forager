@@ -1,9 +1,9 @@
-import { root } from '../main';
+import { app } from '../main';
 import { authCheck } from '../auth';
 import { setMachineControls } from '../db';
 import { NO_BODY, UNAUTHENTICATED } from '../responses';
 
-root.post('/machineControl', async (req, res) => {
+app.post('/api/machineControl', async (req, res) => {
 	if (!authCheck(req)) return UNAUTHENTICATED(res);
 	if (!req.body) return NO_BODY(res);
 

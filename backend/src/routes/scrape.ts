@@ -1,5 +1,5 @@
 import queryString from 'query-string';
-import { root } from '../main';
+import { app } from '../main';
 import { makeFilter } from './results';
 import { authCheck } from '../auth';
 import { getDomains } from '../db';
@@ -19,7 +19,7 @@ function array(input: string | string[]) {
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
 const FETCHES_TARGET = 1;
 
-root.get('/scrape', async (req, res) => {
+app.get('/api/scrape', async (req, res) => {
 	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, {

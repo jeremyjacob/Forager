@@ -1,12 +1,12 @@
 import type { WithId, Document } from 'mongodb';
 import queryString from 'query-string';
-import { root } from '../main';
+import { app } from '../main';
 import { makeFilter } from './results';
 import { authCheck } from '../auth';
 import { getDomains, getNumberDomains } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 
-root.get('/count', async (req, res) => {
+app.get('/api/count', async (req, res) => {
 	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, { arrayFormat: 'comma' });

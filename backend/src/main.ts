@@ -6,7 +6,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const app = express();
+export const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -15,8 +15,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 	res.status(500).send(err.stack);
 });
 
-export const root = app.get('/api', (req, res) => {
-	res.send('Hello Worldf');
+app.get('/api/', (req, res) => {
+	res.send('DELETE /climate/change');
 });
 
 fs.readdirSync('./src/routes').forEach(

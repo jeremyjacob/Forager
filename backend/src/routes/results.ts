@@ -1,6 +1,6 @@
 import type { WithId, Document } from 'mongodb';
 import queryString from 'query-string';
-import { root } from '../main';
+import { app } from '../main';
 import { authCheck } from '../auth';
 import { getDomains, getNumberDomains, getTLDs } from '../db';
 import { UNAUTHENTICATED } from '../responses';
@@ -32,7 +32,7 @@ export async function makeFilter(query: queryString.ParsedQuery<string>) {
 }
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
 
-root.get('/results', async (req, res) => {
+app.get('/api/results', async (req, res) => {
 	if (!authCheck(req)) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, {

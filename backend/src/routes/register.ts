@@ -2,9 +2,9 @@ import { createSession, getUserByEmail, registerUser } from '../db';
 import type { User } from '../types';
 import { NOT_ENABLED, SIGNED_IN } from '../responses';
 import { request } from 'https';
-import { root } from '../main';
+import { app } from '../main';
 
-root.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		let user = (await getUserByEmail(email)) as User;
