@@ -40,7 +40,7 @@ jobs:
       run: cross build --verbose --release --target $TARGET
     - uses: ncipollo/release-action@v1
       with:
-        artifacts: "worker/target/release/forager"
+        artifacts: "worker/target/${{ env.TARGET }}/release/forager"
         name: Worker Binary
         tag: ${{ github.run_id }}
         token: ${{ secrets.GITHUB_TOKEN }}
