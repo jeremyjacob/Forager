@@ -21,13 +21,16 @@ const client = new MongoClient(uri, {
 	serverSelectionTimeoutMS: 3000,
 });
 let connected = false;
+let connectedCallback = () => {};
 run();
 
 function awaitConnect() {
 	if (connected) return;
-	return new Promise((resolve) => {
-		connected = true;
-		client.on('connectionReady', resolve);
+	return new Promise<void>((resolve) => {
+		connectedCallback = () => {
+			console.log('resolve!');
+			resolve();
+		};
 	});
 }
 
@@ -51,7 +54,8 @@ export async function col(name: string) {
 export async function run() {
 	await client.connect();
 	console.log('MongoClient connected');
-	var log = console.log;
+	connectedCallback();
+	connected = true;
 }
 
 // client.on('serverClosed', console.log);

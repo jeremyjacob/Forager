@@ -7,7 +7,7 @@ import { getDomains, getNumberDomains } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 
 app.get('/api/count', async (req, res) => {
-	if (!authCheck(req)) return UNAUTHENTICATED(res);
+	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, { arrayFormat: 'comma' });
 	const filter = makeFilter(query);

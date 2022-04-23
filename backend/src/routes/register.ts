@@ -10,12 +10,9 @@ app.post('/api/register', async (req, res) => {
 		let user = (await getUserByEmail(email)) as User;
 
 		if (user) {
-			return {
-				status: 409,
-				body: {
-					message: `User already exists`,
-				},
-			};
+			return res.status(409).send({
+				message: `User already exists`,
+			});
 		}
 
 		user = await registerUser(email, password);
@@ -25,9 +22,8 @@ app.post('/api/register', async (req, res) => {
 		return SIGNED_IN(res, id);
 	} catch (error) {
 		console.error(error);
-		return {
-			status: 500,
-			body: { message: error.toString() },
-		};
+		res.status(500).send({
+			message: error.toString(),
+		});
 	}
 });

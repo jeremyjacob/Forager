@@ -13,11 +13,11 @@ export const SIGNED_IN = (res: Response, id) =>
 		.cookie('session_id', id, {
 			path: '/',
 			httpOnly: true,
-			sameSite: 'strict',
-			secure: process.env.NODE_ENV === 'production',
+			sameSite: process.env.NODE_ENV == 'production' ? 'strict' : 'lax',
+			secure: process.env.NODE_ENV == 'production',
 			maxAge: 60 * 60 * 24 * 7, // one week
 		})
-		.redirect('/');
+		.send({ ok: 1 });
 
 export const INCORRECT_PW = (res: Response) =>
 	res.status(401).send({ message: 'Incorrect user or password' });
@@ -32,6 +32,7 @@ export const UNKNOWN_USER = (res: Response) =>
 
 export const UNAUTHENTICATED = (res: Response) =>
 	res.status(401).send({
+		mustLogin: true,
 		message: 'Authenticate to use this endpoint',
 	});
 

@@ -5,15 +5,15 @@
 	import DocumentCounter from '../DocumentCounter.svelte';
 	import PageTitle from '../PageTitle.svelte';
 	import Background from '../Background.svelte';
-	import { apiURL } from '$lib/config';
+	import { Endpoint, load } from '$lib/loader';
 
 	let data: DashboardData;
 
 	(async () => {
-		data = await (await fetch(apiURL + 'dashboard')).json();
+		data = await load(Endpoint.Dashboard);
 	})();
 
-	let loading = false;
+	let loading = true;
 </script>
 
 <div class="dashboard grid overflow-hidden" class:fadeUp={loading}>

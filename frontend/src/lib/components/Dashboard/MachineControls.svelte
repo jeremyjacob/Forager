@@ -3,7 +3,7 @@
 
 	import { upIn } from '$lib/animations';
 	import AnimatedNumber from './AnimatedNumber.svelte';
-	import { apiURL } from '$lib/config';
+	import { Endpoint, load } from '$lib/loader';
 
 	export let data: MachineControls;
 
@@ -15,11 +15,7 @@
 			init = true;
 		} else if (data) {
 			displayCount;
-			fetch(apiURL + 'machineControl', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(data)
-			});
+			load(Endpoint.MachineControl, { body: data });
 		}
 	}
 </script>

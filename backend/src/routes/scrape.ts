@@ -20,7 +20,7 @@ function array(input: string | string[]) {
 const FETCHES_TARGET = 1;
 
 app.get('/api/scrape', async (req, res) => {
-	if (!authCheck(req)) return UNAUTHENTICATED(res);
+	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, {
 		arrayFormat: 'comma',

@@ -37,7 +37,7 @@ static HEADERS: HeaderMap = {
     h.insert(
         header::AUTHORIZATION,
         header::HeaderValue::from_static(
-            &*env::var("FORAGER_API_KEY").expect("Enviroment variable FORAGER_API_KEY missing!"),
+            env::var("FORAGER_API_KEY").expect("Enviroment variable FORAGER_API_KEY missing!").as_str(),
         ),
     );
     h

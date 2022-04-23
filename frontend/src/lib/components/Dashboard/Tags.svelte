@@ -4,14 +4,13 @@
 	import { receive, send } from '$lib/animations';
 	import { flip } from 'svelte/animate';
 	import { domainFilter, tags } from '$lib/stores';
-	import { apiURL } from '$lib/config';
+	import { Endpoint, load } from '$lib/loader';
 
 	let selected: Set<string> = new Set();
 	let inverted: Set<string> = new Set();
 
 	async function loadTags() {
-		const tagsRes = await fetch(apiURL + 'tags');
-		tags.set(await tagsRes.json());
+		tags.set(await load(Endpoint.Tags));
 	}
 	loadTags();
 

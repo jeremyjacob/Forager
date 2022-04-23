@@ -5,7 +5,7 @@
 	import { domainCount, domainFilter, domainResults, tags } from '$lib/stores';
 	import { stringify } from 'query-string';
 	import { onDestroy, onMount } from 'svelte';
-	import { apiURL } from '$lib/config';
+	import { Endpoint, load } from '$lib/loader';
 
 	let div: HTMLDivElement;
 	let loading = false;
@@ -16,19 +16,19 @@
 	}
 
 	async function loadResults(lastPage?: string) {
-		const query = {
+		const queryObj = {
 			lastPage,
 			...$domainFilter
 		};
-		const qs = stringify(query, { arrayFormat: 'comma' });
-		const res = await fetch(apiURL + 'results?' + qs);
-		return (await res.json()) as Result[];
+		const query = stringify(queryObj, { arrayFormat: 'comma' });
+		const data = await load(Endpoint.Results, { query });
+		return data as Result[];
 	}
 
 	async function updateCount() {
-		const qs = stringify({ ...$domainFilter }, { arrayFormat: 'comma' });
-		const res = await fetch(apiURL + 'count?' + qs);
-		const { count } = (await res.json()) as { count: number };
+		const query = stringify({ ...$domainFilter }, { arrayFormat: 'comma' });
+		const data = await load(Endpoint.Count, { query });
+		const count: number = data.count;
 		domainCount.set(count);
 	}
 

@@ -4,7 +4,7 @@ import { UNAUTHENTICATED } from '../responses';
 import { app } from '../main';
 
 app.get('/api/tags', async (req, res) => {
-	if (!authCheck(req)) return UNAUTHENTICATED(res);
+	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	let tags = await getTags();
 	tags = tags.reverse();
