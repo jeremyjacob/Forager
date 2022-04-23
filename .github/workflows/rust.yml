@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  TARGET: armv7-unknown-linux-musleabihf
+  TARGET: x86_64-unknown-linux-musl
   CARGO_TERM_COLOR: always
  # OPENSSL_DIR: /usr/local/ssl
   #OPENSSL_LIB_DIR: /usr/lib/arm-linux-gnueabihf
