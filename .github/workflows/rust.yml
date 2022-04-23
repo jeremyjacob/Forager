@@ -24,7 +24,9 @@ jobs:
     - name: Install Binutils
       run: sudo apt install binutils-arm-linux-gnueabihf
     - name: Install libssl-dev & pkg-config
-      run: sudo apt install libssl-dev pkg-config gcc-arm-linux-gnueabihf
+      run: sudo apt install libssl-dev pkg-config #gcc-arm-linux-gnueabihf
+    - name: Install Cross
+      run: cargo install cross
     - name: Install Nightly
       run: rustup install nightly
     - name: Default Nightly
@@ -35,7 +37,7 @@ jobs:
       run: tree -L 4 /usr/lib
     - name: Build
       working-directory: ./worker
-      run: CC=arm-linux-gnueabihf-gcc cargo build --verbose --release --target $TARGET
+      run: cross build --verbose --release --target $TARGET
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "worker/target/release/forager"
