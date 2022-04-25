@@ -20,6 +20,7 @@ pub async fn get_tags<'a>(client: &'static reqwest::Client) -> Result<Tags, reqw
     let url = API_URL.to_owned() + "tags";
     println!("Fetching tags...");
     let res = client.get(url).send().await?;
+    if res.status() != 200 { panic!(format!("Fetch tags request status {}", res.status())) }
     let tags = res.json::<Vec<Tag>>().await?;
     let mut hashmap = BTreeMap::new();
     for tag in tags {
