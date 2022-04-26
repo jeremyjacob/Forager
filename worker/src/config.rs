@@ -1,4 +1,4 @@
-pub const LIFETIME: u16 = 5;
+pub const LIFETIME: u16 = 10;
 pub const TIMEOUT: u64 = 10;
 pub const THREADS: usize = 1000;
 pub const BATCH_SIZE: usize = 1000;

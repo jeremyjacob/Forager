@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut scheduler = AsyncScheduler::new();
         scheduler.every(1.seconds()).run(async || {
-            println!("Sched HEAD");
+            // println!("Sched HEAD");
             post_results().await;
             QUEUED_MATCHES.lock().unwrap().clear();
         });
@@ -82,7 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for i in 0..LIFETIME {
         let result: Vec<Domain> = get_domains(&CLIENT).await?;
         DOMAINS.lock().unwrap().clone_from(&result);
-        println!("Domains {:?}", result);
+        // println!("Domains {:?}", result);
         // let test_domain = Domain {
         //     _id: "".to_string(),
         //     domain: "hbr.org".to_string(),
@@ -103,7 +103,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // parse_out_tags("test.com".to_string(), "poppy and<style>\nNOPE\n</style> <P>NOPE2</P>pippin <STYLE>NOPE3</STYLE>Education poppy".to_string(), &all_keywords, &tag_lengths);
-    println!("{:?}", QUEUED_MATCHES.lock().unwrap());
+    // println!("{:?}", QUEUED_MATCHES.lock().unwrap());
     // post_results(&CLIENT, &QUEUED_MATCHES);
     Ok(())
 }
@@ -165,14 +165,14 @@ async fn fetch_all<'a, 's>(
                 Ok(resp) => {
                     match resp.text().await {
                         Ok(text) => {
-                            println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
+                            // println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
                             COMPLETED.fetch_add(1, Ordering::SeqCst);
                             let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
                             // println!("FOUND {}: {:?}", result.domain, tags);
                             QUEUED_MATCHES.lock().unwrap().extend(tags);
                         }
                         Err(error) => {
-                            println!("ERROR reading {}: {:?}", result.domain, error);
+                            // println!("ERROR reading {}: {:?}", result.domain, error);
                             let tag_match = TagMatch {
                                 _id: result._id,
                                 tag: "Unreadable".to_string(),
