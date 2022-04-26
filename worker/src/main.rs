@@ -32,14 +32,15 @@ static QUEUED_MATCHES: MatchQueue<'static> = Arc::new(Mutex::new(HashSet::new())
 static DOMAINS: Arc<Mutex<Vec<Domain>>> = Arc::new(Mutex::new(Vec::new()));
 
 #[dynamic]
-static API_KEY: String = env::var("FORAGER_API_KEY").expect("Environment variable FORAGER_API_KEY missing!");
+static API_KEY: String =
+    env::var("FORAGER_API_KEY").expect("Environment variable FORAGER_API_KEY missing!");
 
 #[dynamic]
 static HEADERS: HeaderMap = {
     let mut h = header::HeaderMap::new();
     h.insert(
         header::AUTHORIZATION,
-        header::HeaderValue::from_static(API_KEY),
+        header::HeaderValue::from_static(&API_KEY),
     );
     h
 };
@@ -196,7 +197,7 @@ async fn fetch_all<'a, 's>(
             }
         }
     }))
-        .buffer_unordered(THREADS)
-        .collect::<Vec<()>>();
+    .buffer_unordered(THREADS)
+    .collect::<Vec<()>>();
     fetches.await;
 }
