@@ -39,7 +39,7 @@ static HEADERS: HeaderMap = {
     let mut h = header::HeaderMap::new();
     h.insert(
         header::AUTHORIZATION,
-        header::HeaderValue::from_static(&*format!("Bearer {}", API_KEY)),
+        header::HeaderValue::from_static(API_KEY),
     );
     h
 };
