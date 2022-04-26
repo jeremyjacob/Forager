@@ -10,8 +10,10 @@ dotenv.config();
 export const app = express();
 
 const corsOrigins = ['https://forager.jeremyjacob.dev'];
-if (process.env.NODE_ENV != 'production')
+if (process.env.NODE_ENV != 'production') {
+	console.log('Running in development mode');
 	corsOrigins.push('http://localhost:3000');
+}
 
 app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(bodyParser.json());
