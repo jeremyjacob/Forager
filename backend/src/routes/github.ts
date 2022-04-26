@@ -6,6 +6,9 @@ import { exec, spawn } from 'child_process';
 function pullRepo() {
 	exec(
 		[
+			'cd ~/Forager/frontend',
+			'pnpm install',
+			'pnpm build',
 			'cd ~/Forager/backend',
 			'git reset --hard HEAD',
 			'git pull',
@@ -16,8 +19,7 @@ function pullRepo() {
 
 app.post('/api/github', async (req, res) => {
 	const headerSig = req.headers['x-hub-signature-256'];
-	console.log('/github', req.headers, headerSig);
-	let sig =
+	const sig =
 		'sha256=' +
 		crypto
 			.createHmac('sha256', API_KEY)
