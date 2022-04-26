@@ -15,8 +15,14 @@ if (process.env.NODE_ENV != 'production') {
 	corsOrigins.push('http://localhost:3000');
 }
 
+const rawBodySaver = (req, res, buf: Buffer, encoding) => {
+	if (buf && buf.length) {
+		req.rawBody = buf.toString(encoding || 'utf8');
+	}
+};
+
 app.use(cors({ origin: corsOrigins, credentials: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ verify: rawBodySaver }));
 app.use(cookieParser());
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 	console.error(err.stack);
