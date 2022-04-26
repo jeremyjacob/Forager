@@ -33,7 +33,7 @@ app.post('/api/github', async (req, res) => {
 	console.log(sig);
 	if (headerSig === sig) {
 		// request is from GitHub
-		pullRepo();
+		setTimeout(pullRepo, 2000);
 		console.log('Got pull notification from GitHub...');
 		res.send({ ok: 1 });
 	} else res.status(401).send({ ok: 0 });
