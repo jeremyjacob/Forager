@@ -1,9 +1,17 @@
 import { API_KEY } from '../auth';
 import { app } from '../main';
 import crypto from 'crypto';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 
 function pullRepo() {
+	process.on('exit', () => {
+		// Restart self
+		spawn(process.argv.shift(), process.argv, {
+			cwd: process.cwd(),
+			detached: true,
+			stdio: 'inherit',
+		});
+	});
 	exec(
 		[
 			'cd ~/Forager/backend',
@@ -11,8 +19,8 @@ function pullRepo() {
 			'git pull',
 			'pnpm install',
 		].join('&&')
-	);
-} //
+	).on('exit', process.exit);
+}
 
 app.post('/api/github', async (req, res) => {
 	const headerSig = req.headers['x-hub-signature-256'];
