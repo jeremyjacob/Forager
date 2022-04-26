@@ -16,7 +16,7 @@ function pullRepo() {
 
 app.post('/api/github', async (req, res) => {
 	const headerSig = req.headers['x-hub-signature-256'];
-	console.log('/github', req.body, headerSig);
+	console.log('/github', req.headers, headerSig);
 	req.on('data', (chunk) => {
 		let sig =
 			'sha256=' +
@@ -27,8 +27,9 @@ app.post('/api/github', async (req, res) => {
 		if (headerSig == sig) {
 			// request is from GitHub
 			pullRepo();
+			console.log('Got pull notification from GitHub...');
 			res.send({ ok: 1 });
 		}
 	});
-	setTimeout(() => res.send({ ok: 0 }), 500);
+	setTimeout(() => res.status(401).send({ ok: 0 }), 2000);
 });
