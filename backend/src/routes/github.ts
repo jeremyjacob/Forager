@@ -12,7 +12,7 @@ function pullRepo() {
 			'pnpm install',
 		].join('&&')
 	);
-}
+} //
 
 app.post('/api/github', async (req, res) => {
 	const headerSig = req.headers['x-hub-signature-256'];
