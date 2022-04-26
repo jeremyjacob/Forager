@@ -6,7 +6,7 @@ import type { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
-
+//
 export const app = express();
 
 const corsOrigins = ['https://forager.jeremyjacob.dev'];
