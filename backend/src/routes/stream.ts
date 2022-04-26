@@ -14,7 +14,7 @@ export function broadcast(type: BroadcastType, body: any) {
 	);
 }
 
-app.get('/api/stream', async (req, res) => {
+app.get('/stream', async (req, res) => {
 	res.set({
 		'Access-Control-Allow-Origin': '*',
 		'Cache-Control': 'no-cache',

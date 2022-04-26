@@ -10,7 +10,7 @@ import {
 } from '../responses';
 import { app } from '../main';
 
-app.post('/api/login', async (req, res) => {
+app.post('/login', async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const user = (await getUserByEmail(email)) as User;

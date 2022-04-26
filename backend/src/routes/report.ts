@@ -5,7 +5,7 @@ import { reportBatch } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 import { broadcast } from './stream';
 
-app.post('/api/report', async (req, res) => {
+app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	const json = req.body as WorkerTagMatch[];

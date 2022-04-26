@@ -32,7 +32,7 @@ export async function makeFilter(query: queryString.ParsedQuery<string>) {
 }
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
 
-app.get('/api/results', async (req, res) => {
+app.get('/results', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, {

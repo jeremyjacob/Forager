@@ -31,7 +31,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 	res.status(500).send(err.stack);
 });
 
-app.get('/api/', (req, res) => {
+app.get('/', (req, res) => {
 	res.send('DELETE /climate/change');
 });
 

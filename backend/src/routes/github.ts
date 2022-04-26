@@ -15,7 +15,7 @@ function pullRepo() {
 	).on('exit', process.exit(0));
 }
 
-app.post('/api/github', async (req, res) => {
+app.post('/github', async (req, res) => {
 	const headerSig = req.headers['x-hub-signature-256'];
 	const sig =
 		'sha256=' +

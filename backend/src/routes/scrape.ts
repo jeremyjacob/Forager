@@ -19,7 +19,7 @@ function array(input: string | string[]) {
 
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
 
-app.get('/api/scrape', async (req, res) => {
+app.get('/scrape', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, {
