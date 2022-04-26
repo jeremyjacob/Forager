@@ -6,14 +6,19 @@ import { exec, spawn } from 'child_process';
 function pullRepo() {
 	exec(
 		[
-			'cd ~/Forager/frontend',
-			'pnpm install',
-			'pnpm build',
-			'cd ~/Forager/backend',
-			'git reset --hard HEAD',
-			'git pull',
-			'pnpm install',
-		].join('&&')
+			[
+				'cd ~/Forager/frontend',
+				'pnpm install',
+				'pnpm build',
+				// '',
+			].join('&&'),
+			[
+				'cd ~/Forager/backend',
+				'git reset --hard HEAD',
+				'git pull',
+				'pnpm install',
+			].join('&&'),
+		].join(';')
 	).on('exit', process.exit(0));
 }
 
