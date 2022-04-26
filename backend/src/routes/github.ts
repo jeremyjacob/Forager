@@ -1,4 +1,4 @@
-import { apiKeyCheck, API_KEY } from '../auth';
+import { API_KEY } from '../auth';
 import { app } from '../main';
 import crypto from 'crypto';
 import { exec } from 'child_process';
