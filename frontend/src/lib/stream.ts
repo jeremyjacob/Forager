@@ -1,1 +1,3 @@
-export const stream = new EventSource('http://localhost:8000/api/stream');
+import { apiURL } from './loader';
+
+export const stream = new EventSource(apiURL + 'stream');

@@ -20,7 +20,7 @@ const endpoints = {
 
 export const apiURL =
 	location.hostname == 'localhost'
-		? 'http://localhost:8000/api/'
+		? 'http://localhost:8000/'
 		: 'https://forager.jeremyjacob.dev/api/';
 
 export async function load(

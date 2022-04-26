@@ -17,7 +17,7 @@
 
 <style>
 	.secondary {
-		/* @apply shadow-none text-gray-900 hover:text-gray-700; */
+		@apply shadow-none text-gray-900 hover:bg-transparent hover:bg-gray-100;
 		background: none;
 	}
 </style>
