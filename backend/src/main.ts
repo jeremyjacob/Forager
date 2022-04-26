@@ -19,7 +19,7 @@ const rawBodySaver = (req, res, buf: Buffer, encoding) => {
 	if (buf && buf.length) {
 		req.rawBody = buf.toString(encoding || 'utf8');
 	}
-}; //
+};
 
 app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(bodyParser.json({ verify: rawBodySaver }));
