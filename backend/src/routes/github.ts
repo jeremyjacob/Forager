@@ -4,14 +4,6 @@ import crypto from 'crypto';
 import { exec, spawn } from 'child_process';
 
 function pullRepo() {
-	process.on('exit', () => {
-		// Restart self
-		spawn(process.argv.shift(), process.argv, {
-			cwd: process.cwd(),
-			detached: true,
-			stdio: 'inherit',
-		});
-	});
 	exec(
 		[
 			'cd ~/Forager/backend',
@@ -19,7 +11,7 @@ function pullRepo() {
 			'git pull',
 			'pnpm install',
 		].join('&&')
-	).on('exit', process.exit);
+	).on('exit', process.exit(0));
 }
 
 app.post('/api/github', async (req, res) => {
