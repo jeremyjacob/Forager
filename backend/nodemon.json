@@ -1,6 +1,6 @@
 {
 	"ignore": ["**/*.test.ts", "**/*.spec.ts", "node_modules"],
 	"watch": ["src"],
-	"exec": "pnpm install && pnpm start",
+	"exec": "pnpm start",
 	"ext": "ts"
 }

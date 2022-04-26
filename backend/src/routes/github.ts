@@ -5,7 +5,12 @@ import { exec } from 'child_process';
 
 function pullRepo() {
 	exec(
-		['cd ~/Forager/backend', 'git reset --hard HEAD', 'git pull'].join('&&')
+		[
+			'cd ~/Forager/backend',
+			'git reset --hard HEAD',
+			'git pull',
+			'pnpm install',
+		].join('&&')
 	);
 }
 
