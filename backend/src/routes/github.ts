@@ -6,19 +6,12 @@ import { exec } from 'child_process';
 function pullRepo() {
 	exec(
 		[
-			[
-				'cd ~/Forager/frontend',
-				'pnpm install',
-				'pnpm build',
-				// '',
-			].join('&&'),
-			[
-				'cd ~/Forager/backend',
-				'git reset --hard HEAD',
-				'git pull',
-				'pnpm install',
-			].join('&&'),
-		].join(';')
+			['git reset --hard HEAD', 'git pull'],
+			['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],
+			['cd ~/Forager/backend', 'pnpm install'],
+		]
+			.map((l) => l.join('&&'))
+			.join(';')
 	).on('exit', process.exit(0));
 }
 
@@ -30,7 +23,6 @@ app.post('/api/github', async (req, res) => {
 			.createHmac('sha256', API_KEY)
 			.update(req['rawBody'])
 			.digest('hex');
-	console.log(sig);
 	if (headerSig === sig) {
 		// request is from GitHub
 		setTimeout(pullRepo, 2000);

@@ -60,7 +60,7 @@
 
 <div class="p-6 pt-5 h-[calc(100vh-5rem)] relative flex flex-col overflow-hidden" draggable="false">
 	<tags-top>
-		<h1 class="text-3xl {!selected.size ? 'mb-3' : 'mb-0.5'}">Tags!!!</h1>
+		<h1 class="text-3xl {!selected.size ? 'mb-3' : 'mb-0.5'}">Tags#</h1>
 		{#if selected.size}
 			<span
 				class="absolute right-6 top-6 transition text-gray-900  hover:text-red-700 cursor-pointer"
