@@ -1,7 +1,7 @@
 import { API_KEY } from '../auth';
 import { app } from '../main';
 import crypto from 'crypto';
-import { exec, spawn } from 'child_process';
+import { exec } from 'child_process';
 
 function pullRepo() {
 	exec(
