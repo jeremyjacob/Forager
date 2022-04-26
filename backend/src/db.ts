@@ -11,9 +11,10 @@ import {
 import { generateSalt, hasher } from './hasher';
 import type { DataTag, User, WorkerTagMatch } from './types';
 import { delay, timeout } from './utils';
+import { FETCHES_TARGET } from './config';
 
 if (!process.env.MONGOPW) throw Error('MONGOPW not set!');
-const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/forager?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
 	connectTimeoutMS: 3000,
@@ -76,9 +77,11 @@ export async function getDomains(
 			results = await domains.find(filter).limit(count).toArray();
 			const resultIds = results.map((doc) => doc._id);
 			if (lock) {
+				const date = new Date();
+				date.setMinutes(date.getMinutes() + 3); // Lock expires in 3 minutes
 				await domains.updateMany(
 					{ _id: { $in: resultIds } },
-					{ $set: { lock: new Date() } },
+					{ $set: { lock: date } },
 					{ session }
 				);
 			}
@@ -173,8 +176,8 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 						tags: tag,
 						['snippets.' + tag]: keyword,
 					},
-					$inc: {
-						fetches: 1,
+					$set: {
+						fetches: FETCHES_TARGET,
 					},
 					$unset: {
 						lock: null,

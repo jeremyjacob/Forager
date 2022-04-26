@@ -20,7 +20,7 @@ export async function makeFilter(query: queryString.ParsedQuery<string>) {
 	const includes = query.includes;
 	const excludes = query.excludes;
 	const filter: any = { tags: {}, TLD: { $in: await getTLDs() } };
-	delete filter.TLD;
+	// delete filter.TLD;
 
 	if (includes?.includes('All')) {
 		filter.tags.$exists = true;
