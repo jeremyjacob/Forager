@@ -33,7 +33,7 @@ static DOMAINS: Arc<Mutex<Vec<Domain>>> = Arc::new(Mutex::new(Vec::new()));
 
 #[dynamic]
 static API_KEY: String =
-    env::var("FORAGER_API_KEY").expect("Environment variable FORAGER_API_KEY missing!");
+    env::var("FORAGER_API_KEY").expect("Environment variable FORAGER_API_KEY is missing! ");
 
 #[dynamic]
 static HEADERS: HeaderMap = {

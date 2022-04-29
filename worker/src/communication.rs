@@ -1,18 +1,24 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::error::Error;
-use reqwest::Client;
-use serde_json::json;
-use crate::{BATCH_SIZE, CLIENT, QUEUED_MATCHES};
 use crate::config::API_URL;
 use crate::types::*;
+use crate::{BATCH_SIZE, CLIENT, QUEUED_MATCHES};
+use reqwest::Client;
+use serde_json::json;
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::error::Error;
 
 pub async fn post_results() -> Result<(), Box<dyn std::error::Error>> {
     let queue = QUEUED_MATCHES.lock().unwrap().clone();
     // println!("POST QUEUE {:?}", queue);
-    if queue.len() == 0 { return Ok(()); }
+    if queue.len() == 0 {
+        return Ok(());
+    }
     // let json = serde_json::to_string(&queue)?;
     // println!("POST QUEUE {:?}", json);
-    CLIENT.post(API_URL.to_owned() + "report").json(&queue).send().await?;
+    CLIENT
+        .post(API_URL.to_owned() + "report")
+        .json(&queue)
+        .send()
+        .await?;
     Ok(())
 }
 
@@ -20,7 +26,9 @@ pub async fn get_tags<'a>(client: &'static reqwest::Client) -> Result<Tags, reqw
     let url = API_URL.to_owned() + "tags";
     println!("Fetching tags...");
     let res = client.get(url).send().await?;
-    if res.status() != 200 { panic!(format!("Fetch tags request status {}", res.status())) }
+    if res.status() != 200 {
+        panic!("Fetch tags request status {}", res.status())
+    }
     let tags = res.json::<Vec<Tag>>().await?;
     let mut hashmap = BTreeMap::new();
     for tag in tags {

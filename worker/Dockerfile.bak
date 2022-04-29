@@ -1,0 +1,53 @@
+# FROM ekidd/rust-musl-builder:nightly AS builder
+FROM --platform=$BUILDPLATFORM rust:latest as builder
+
+ENV TARGET="armv7-unknown-linux-musleabihf"
+
+RUN apt-get update && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -yq \
+        build-essential \
+        cmake \
+        curl \
+        file \
+        git \
+        graphviz \
+        musl-dev \
+        musl-tools \
+        libpq-dev \
+        libssl-dev \
+        linux-libc-dev \
+        pkgconf \
+        sudo \
+        unzip \
+        xutils-dev \
+        && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s "/usr/bin/g++" "/usr/bin/musl-g++"
+
+RUN rustup update
+# USER rust
+RUN mkdir -p /home/root/libs /home/root/src /home/root/.cargo && \
+    ln -s /opt/rust/cargo/config /home/root/.cargo/config && \
+    git config --global credential.https://github.com.helper ghtoken
+
+WORKDIR /home/root/src
+# RUN cargo install cross
+
+COPY . .
+RUN --mount=type=cache,target=/home/root/.cargo/git \
+    --mount=type=cache,target=/home/root/.cargo/registry \
+    --mount=type=cache,sharing=private,target=/home/root/src/target \
+    # sudo chown -R root: target /home/root/.cargo && \
+    cargo build --release --target ${TARGET} && \
+    # Copy executable out of the cache so it is available in the final image.
+    cp target/${TARGET}/release/forager ./forager
+
+
+FROM arm64v8/alpine:latest
+
+COPY --from=builder /home/root/src/forager .
+USER 1000
+
+CMD ["./forager"]

@@ -1,46 +1,42 @@
-name: Rust
+name: Create and publish a Docker image
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    push:
+        branches: ['main']
 
 env:
-  TARGET: armv7-unknown-linux-musleabihf
-  CARGO_TERM_COLOR: always
- # OPENSSL_DIR: /usr/local/ssl
-  #OPENSSL_LIB_DIR: /usr/lib/arm-linux-gnueabihf
-  #OPENSSL_INCLUDE_DIR: /usr/include/openssl
-  CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_LINKER: arm-linux-gnueabihf-ld
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+    build-and-push-image:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
 
-    runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Install Binutils
-      run: sudo apt install binutils-arm-linux-gnueabihf
-    - name: Install libssl-dev & pkg-config
-      run: sudo apt install libssl-dev pkg-config #gcc-arm-linux-gnueabihf
-    - name: Install Cross
-      run: cargo install cross
-    - name: Install Nightly
-      run: rustup install nightly
-    - name: Default Nightly
-      run: rustup default nightly
-    - name: Add Target
-      run: rustup target add $TARGET
-    - name: Log
-      run: tree -L 4 /usr/lib
-    - name: Build
-      working-directory: ./worker
-      run: cross build --verbose --release --target $TARGET
-    - uses: ncipollo/release-action@v1
-      with:
-        artifacts: "worker/target/${{ env.TARGET }}/release/forager"
-        name: Worker Binary
-        tag: ${{ github.run_id }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Log in to the Container registry
+              uses: docker/login-action
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+            - name: Build and push Docker image
+              uses: docker/build-push-action
+              with:
+                  context: ./worker/Dockerfile
+                  platforms: linux/arm64
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
