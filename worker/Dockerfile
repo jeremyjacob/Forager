@@ -5,8 +5,7 @@ COPY Cargo.toml Cargo.lock /app/
 
 # We create a new lib and then use our own Cargo.toml
 WORKDIR /app
-RUN mkdir src
-RUN echo "fn main() {}" > src/main.rs
+RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN rustup install nightly && rustup default nightly
 
 # This step compiles only our dependencies and saves them in a layer. This is the most impactful time savings
@@ -26,6 +25,6 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 	cargo build --release
 
 # Again, our final image is the same - a slim base and just our app
-FROM debian:buster-slim as app
+FROM arm64v8/debian:buster-slim as app
 COPY --from=builder /app/target/release/forager /forager
 CMD ["/forager"]
