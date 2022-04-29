@@ -5,7 +5,8 @@ COPY Cargo.toml Cargo.lock /app/
 
 # We create a new lib and then use our own Cargo.toml
 WORKDIR /app
-RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN mkdir src
+RUN echo "fn main() {}" > src/main.rs
 RUN rustup install nightly && rustup default nightly
 
 # This step compiles only our dependencies and saves them in a layer. This is the most impactful time savings
