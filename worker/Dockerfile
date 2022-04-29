@@ -1,4 +1,4 @@
-FROM rust as builder
+FROM arm64v8/rust as builder
 
 # Capture dependencies
 COPY Cargo.toml Cargo.lock /app/
@@ -25,6 +25,6 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 	cargo build --release
 
 # Again, our final image is the same - a slim base and just our app
-FROM debian:buster-slim as app
+FROM arm64v8/debian:buster-slim as app
 COPY --from=builder /app/target/release/forager /forager
 CMD ["/forager"]
