@@ -41,4 +41,4 @@ fs.readdirSync('./src/routes').forEach(
 
 const port = 8000;
 app.listen(port);
-console.log('Forager server alive on port ' + port);
+console.log('1Forager server alive on port ' + port);
