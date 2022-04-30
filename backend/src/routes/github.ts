@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { exec } from 'child_process';
 
 function pullRepo() {
-	exec(
+	const executor = exec(
 		[
 			['git reset --hard HEAD', 'git pull --rebase'],
 			['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],
@@ -12,7 +12,9 @@ function pullRepo() {
 		]
 			.map((l) => l.join('&&'))
 			.join(';')
-	).on('exit', process.exit(0));
+	);
+	executor.on('message', console.log);
+	executor.on('error', console.error);
 }
 
 app.post('/github', async (req, res) => {
