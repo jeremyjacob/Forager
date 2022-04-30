@@ -26,5 +26,10 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 # Again, our final image is the same - a slim base and just our app
 FROM arm64v8/debian:buster-slim as app
+RUN \
+  apt-get update && \
+  apt-get install ca-certificates -y && \
+  apt-get clean
+
 COPY --from=builder /app/target/release/forager /forager
 CMD ["/forager"]
