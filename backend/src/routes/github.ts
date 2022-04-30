@@ -6,15 +6,16 @@ import { exec } from 'child_process';
 function pullRepo() {
 	const executor = exec(
 		[
-			['git fetch', 'git reset --hard HEAD', `git merge -m '@{u}'`],
+			['git fetch', 'git reset --hard HEAD', `git merge -m '@{u}' `],
 			['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],
 			['cd ~/Forager/backend', 'pnpm install'],
 		]
 			.map((l) => l.join('&&'))
 			.join(';')
 	);
-	executor.on('message', console.log);
-	executor.on('error', console.error);
+	executor.stdout.pipe(process.stdout);
+	executor.stderr.pipe(process.stderr);
+	executor.on('exit', process.exit(0));
 }
 
 app.post('/github', async (req, res) => {
