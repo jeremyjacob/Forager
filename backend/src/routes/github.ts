@@ -5,22 +5,23 @@ import { exec, spawn } from 'child_process';
 
 function pullRepo() {
 	const executor = spawn(
-		[
-			[
-				'git fetch',
-				'git reset --hard HEAD',
-				'git clean -f -d',
-				`git merge -m '@{u}'`,
-			],
-			['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],
-			['cd ~/Forager/backend', 'pnpm install'],
-		]
-			.map((l) => l.join('&&'))
-			.join(';'),
+		// [
+		// 	[
+		// 		'git fetch',
+		// 		'git reset --hard HEAD',
+		// 		'git clean -f -d',
+		// 		`git merge -m '@{u}'`,
+		// 	],
+		// 	['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],
+		// 	['cd ~/Forager/backend', 'pnpm install'],
+		// ]
+		// 	.map((l) => l.join('&&'))
+		// 	.join(';'),
+		'touch test',
 		{ stdio: 'inherit' }
 	);
-	// executor.stdout.pipe(process.stdout);
-	// executor.stderr.pipe(process.stderr);
+	executor.stdout.pipe(process.stdout);
+	executor.stderr.pipe(process.stderr);
 	executor.on('exit', process.exit(0));
 }
 
