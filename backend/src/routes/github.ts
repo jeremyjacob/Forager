@@ -6,7 +6,7 @@ import { exec } from 'child_process';
 function pullRepo() {
 	const executor = exec(
 		[
-			['git reset --hard HEAD', 'git pull --rebase'],
+			['git fetch', 'git reset --hard HEAD', `git merge '@{u}'`],
 			['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],
 			['cd ~/Forager/backend', 'pnpm install'],
 		]
