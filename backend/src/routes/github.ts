@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { exec, spawn } from 'child_process';
 
 function pullRepo() {
-	const executor = spawn(
+	const executor = exec(
 		// [
 		// 	[
 		// 		'git fetch',
@@ -17,8 +17,7 @@ function pullRepo() {
 		// ]
 		// 	.map((l) => l.join('&&'))
 		// 	.join(';'),
-		'touch test',
-		{ stdio: 'inherit' }
+		'touch test'
 	);
 	executor.stdout.pipe(process.stdout);
 	executor.stderr.pipe(process.stderr);
