@@ -39,6 +39,7 @@ app.post('/github', async (req, res) => {
 		// request is from GitHub
 		// setTimeout(pullRepo, 2000);
 		pullRepo();
+		console.log(req.body);
 		res.send({ ok: 1 });
 	} else res.status(401).send({ ok: 0 });
 });
