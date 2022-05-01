@@ -10,7 +10,7 @@ function pullRepo() {
 			[
 				'git fetch',
 				'git reset --hard HEAD',
-				'git clean -f -d',
+				// 'git clean -f -d',
 				`git merge -m '@{u}'`,
 			],
 			['cd ~/Forager/frontend', 'pnpm install', 'pnpm build'],

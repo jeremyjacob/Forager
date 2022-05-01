@@ -39,7 +39,7 @@ fs.readdirSync('./src/routes').forEach(
 	(route) => import('./routes/' + route.replace('.ts', ''))
 );
 
-console.log('1');
+console.log('2');
 const port = 8000;
 app.listen(port);
 console.log('Forager server alive on port ' + port);
