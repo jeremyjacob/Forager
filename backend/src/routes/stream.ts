@@ -3,7 +3,7 @@ import { app } from '../main';
 
 let clients: Set<Response> = new Set();
 
-type BroadcastType = 'result';
+type BroadcastType = 'result' | 'msg';
 export function broadcast(type: BroadcastType, body: any) {
 	const data = {
 		type,

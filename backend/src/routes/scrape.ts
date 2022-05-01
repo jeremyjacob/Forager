@@ -5,6 +5,7 @@ import { authCheck } from '../auth';
 import { getDomains } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 import { FETCHES_TARGET } from '../config';
+import { broadcast } from './stream';
 
 function unArray(input: string | string[]) {
 	if (typeof input == 'string') return input;
@@ -21,7 +22,7 @@ function array(input: string | string[]) {
 
 app.get('/scrape', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-
+	broadcast('msg', 'GET /scrape');
 	const { query } = queryString.parseUrl(req.url, {
 		arrayFormat: 'comma',
 	});
