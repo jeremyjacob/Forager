@@ -4,14 +4,31 @@ import { authCheck } from '../auth';
 import { reportBatch } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 import { broadcast } from './stream';
+import { ObjectId } from 'mongodb';
 
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
-	const json = req.body as WorkerTagMatch[];
-	const response = await reportBatch(json);
-
-	broadcast('result', json);
+	const data = req.body as WorkerTagMatch[];
+	const response = await reportBatch(data);
+	const batch = data.map(({ id, tag, keyword }) => ({
+		updateOne: {
+			filter: { _id: new ObjectId(id) },
+			update: {
+				$addToSet: {
+					tags: tag,
+					['snippets.' + tag]: keyword,
+				},
+				$set: {
+					fetches: 1,
+				},
+				$unset: {
+					lock: null,
+				},
+			},
+		},
+	}));
+	broadcast('result', { data, response, batch });
 
 	return res.send({
 		ok: !response.hasWriteErrors(),

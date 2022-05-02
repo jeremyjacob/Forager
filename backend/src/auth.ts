@@ -13,11 +13,5 @@ export async function authCheck(req: Request) {
 	const hasSession = await getSession(session);
 	const attemptKey = req.headers?.authorization?.replace(/[^A-Za-z0-9]/g, ''); // Strip non-alpha-numeric
 	const apiKey = attemptKey === API_KEY || attemptKey === 'Bearer ' + API_KEY;
-	console.table({
-		apiKey: apiKey,
-		hasSession: hasSession,
-		'req.headers': req.headers,
-		'API_KEY:': API_KEY,
-	});
 	return hasSession || apiKey;
 }
