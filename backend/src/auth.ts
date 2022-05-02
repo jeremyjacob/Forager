@@ -13,5 +13,11 @@ export async function authCheck(req: Request) {
 	const apiKey =
 		req.headers?.authorization === API_KEY ||
 		req.headers?.authorization === 'Bearer ' + API_KEY;
+	console.table({
+		apiKey: apiKey,
+		hasSession: hasSession,
+		'req.headers': req.headers,
+		'API_KEY:': API_KEY,
+	});
 	return hasSession || apiKey;
 }

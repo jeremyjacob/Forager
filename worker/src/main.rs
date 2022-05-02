@@ -55,7 +55,6 @@ static CLIENT: reqwest::Client = Client::builder()
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let now = SystemTime::now();
     let tags = get_tags(&CLIENT).await?;
     let all_keywords = tags.values().flatten().collect::<Vec<_>>();
     let mut tag_lengths = BTreeMap::new();
@@ -80,7 +79,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
-    for i in 0..LIFETIME {
+    for i in 1..LIFETIME {
+        let now = SystemTime::now();
         let result: Vec<Domain> = get_domains(&CLIENT).await?;
         DOMAINS.lock().unwrap().clone_from(&result);
         // println!("Domains {:?}", result);
@@ -96,7 +96,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let elapsed = now.elapsed()?;
         let elapsed_s = elapsed.as_millis() as f64 / 1000.0;
         println!(
-            "Completed in {:.2} sec. {} failed. {} completed.",
+            "Completed age {}/{} in {:.2} sec. {} failed. {} completed.",
+            i + 1,
+            LIFETIME,
             elapsed_s,
             FAILED.fetch_add(0, Ordering::SeqCst),
             COMPLETED.fetch_add(0, Ordering::SeqCst)
@@ -197,7 +199,7 @@ async fn fetch_all<'a, 's>(
             }
         }
     }))
-    .buffer_unordered(THREADS)
-    .collect::<Vec<()>>();
+        .buffer_unordered(THREADS)
+        .collect::<Vec<()>>();
     fetches.await;
 }

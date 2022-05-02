@@ -27,9 +27,15 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 # Again, our final image is the same - a slim base and just our app
 FROM arm64v8/debian:buster-slim as app
 RUN \
-  apt-get update && \
-  apt-get install ca-certificates -y && \
-  apt-get clean
+	apt-get update && \
+	apt-get install ca-certificates -y && \
+	apt-get clean
+
+# Enable MITM inspection
+# RUN \
+# 	sysctl -w net.ipv4.ip_forward=1 && \
+# 	iptables -t nat -A PREROUTING -i docker0 -p tcp --dport 80 -j REDIRECT --to-port 8080 && \
+# 	iptables -t nat -A PREROUTING -i docker0 -p tcp --dport 443 -j REDIRECT --to-port 8080
 
 COPY --from=builder /app/target/release/forager /forager
 CMD ["/forager"]
