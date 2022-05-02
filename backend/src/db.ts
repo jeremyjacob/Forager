@@ -157,10 +157,10 @@ export async function setTags(tags: DataTag[]) {
 // Mainly, we are setting desiredCount, the number of workers we want working
 export async function setMachineControls({
 	desiredCount,
-	run,
+	running,
 }: {
 	desiredCount: number;
-	run: boolean;
+	running: boolean;
 }) {
 	await awaitConnect();
 	const workers = await col('workers');
@@ -168,7 +168,7 @@ export async function setMachineControls({
 	const update = Object.assign(
 		{},
 		desiredCount && { desiredCount },
-		run && { run }
+		running && { running }
 	);
 	if (!Object.values(update).length) return null;
 
