@@ -10,10 +10,12 @@ import {
 
 import { generateSalt, hasher } from './hasher';
 import type { DataTag, User, WorkerTagMatch } from './types';
-import { delay, timeout } from './utils';
+import { timeout } from './utils';
 import { FETCHES_TARGET } from './config';
 
+// Check if the Enviroment Variable MONGOPW is set, this is where we keep the MongoDB credentials
 if (!process.env.MONGOPW) throw Error('MONGOPW not set!');
+// Create the MongoDB connection string and insert the password
 const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/forager?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -25,6 +27,9 @@ let connected = false;
 let connectedCallback = () => {};
 run();
 
+// This function is awaited before every DB function
+// It resolves when the MongoDB connection is sucessfull.
+// This prevents errors about the client not being connected yet.
 function awaitConnect() {
 	if (connected) return;
 	return new Promise<void>((resolve) => {
@@ -47,6 +52,7 @@ export type DbDomain = {
 	TLD: string;
 };
 
+// Shorthand for getting a collection from the 'forager' db
 export async function col(name: string) {
 	const db = await client.db('forager');
 	return db.collection(name);
@@ -59,8 +65,16 @@ export async function run() {
 	connected = true;
 }
 
-// client.on('serverClosed', console.log);
-
+/* 
+Fetch a list of domains from the DB
+filter is an object that describes the filter to pass to Mongo
+options.limit caps the size of the results
+options.lastPage is an stringified ObjectID that tells Mongo where to start results from
+	It is used for pagination
+options.lock is a boolean that describes whether or not to impose a 3 minute lock on the results
+	This means they couldn't be fetched again by the scraper (specified in the filter by caller in scrape.ts)
+	Effectively this means that a worker has 3 minutes to report a response for a domain, or it will be given to another worker
+*/
 export async function getDomains(
 	filter: object,
 	options: { limit: number; lastPage?: string; lock?: boolean }
@@ -94,6 +108,8 @@ export async function getDomains(
 	return results;
 }
 
+// Get an approximate number of results that match a filter
+// After 2 seconds of loading, it runs NaN (Not A Number)
 export async function getNumberDomains(filter: object = {}) {
 	await awaitConnect();
 	const domains = await col('domains');
@@ -108,6 +124,7 @@ export async function getNumberDomains(filter: object = {}) {
 	return count;
 }
 
+// Get a list of all the TLDs we care about. About 15 at time of writing.
 export async function getTLDs() {
 	await awaitConnect();
 	const reference = await col('ref');
@@ -115,6 +132,7 @@ export async function getTLDs() {
 	return tlds as string[];
 }
 
+// Get the complete list of tags and their keywords
 export async function getTags() {
 	await awaitConnect();
 	const reference = await col('ref');
@@ -124,6 +142,7 @@ export async function getTags() {
 	return sorted;
 }
 
+// Update a tag
 export async function setTags(tags: DataTag[]) {
 	await awaitConnect();
 	const reference = await col('ref');
@@ -134,19 +153,22 @@ export async function setTags(tags: DataTag[]) {
 	);
 }
 
+// Machine controls are the control plane for ECS
+// Mainly, we are setting desiredCount, the number of workers we want working
 export async function setMachineControls({
 	desiredCount,
-	running,
+	run,
 }: {
 	desiredCount: number;
-	running: boolean;
+	run: boolean;
 }) {
 	await awaitConnect();
 	const workers = await col('workers');
+	// Only add these to the update object if they are defined
 	const update = Object.assign(
 		{},
 		desiredCount && { desiredCount },
-		running && { running }
+		run && { run }
 	);
 	if (!Object.values(update).length) return null;
 
