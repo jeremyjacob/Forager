@@ -190,9 +190,9 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 	await awaitConnect();
 	const workers = await col('domains');
 	const batch: AnyBulkWriteOperation<{}>[] = data.map(
-		({ id, tag, keyword }) => ({
+		({ _id, tag, keyword }) => ({
 			updateOne: {
-				filter: { _id: new ObjectId(id) },
+				filter: { _id: new ObjectId(_id) },
 				update: {
 					$addToSet: {
 						tags: tag,

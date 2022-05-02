@@ -11,24 +11,7 @@ app.post('/report', async (req, res) => {
 
 	const data = req.body as WorkerTagMatch[];
 	const response = await reportBatch(data);
-	const batch = data.map(({ id, tag, keyword }) => ({
-		updateOne: {
-			filter: { _id: new ObjectId(id) },
-			update: {
-				$addToSet: {
-					tags: tag,
-					['snippets.' + tag]: keyword,
-				},
-				$set: {
-					fetches: 1,
-				},
-				$unset: {
-					lock: null,
-				},
-			},
-		},
-	}));
-	broadcast('result', { data, response, batch });
+	broadcast('result', { data, response });
 
 	return res.send({
 		ok: !response.hasWriteErrors(),
