@@ -58,7 +58,10 @@
 	// hsl(0, 89%, 89%)
 </script>
 
-<div class="p-6 pt-5 h-[calc(100vh-5rem)] relative flex flex-col overflow-hidden" draggable="false">
+<div
+	class="p-6 pt-5 h-[calc(100vh-5rem)] relative flex flex-col overflow-hidden dark:bg-gray-990"
+	draggable="false"
+>
 	<tags-top>
 		<h1 class="text-3xl {!selected.size ? 'mb-3' : 'mb-0.5'}">Tags</h1>
 		{#if selected.size}

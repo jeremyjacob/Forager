@@ -20,19 +20,19 @@
 	}
 </script>
 
-<div class="absolute bottom-0 w-full h-24 bg-white border-t p-6 pt-5">
+<div class="absolute bottom-0 w-full h-24 bg-white border-t p-4 pt-5 dark:bg-gray-990">
 	<div class="flex">
-		<machine-count class="flex flex-row">
+		<machine-count class="flex flex-row gap-0">
 			<span class="cursor-pointer" on:click={() => (data.running = !data.running)}>
 				<AnimatedNumber bind:number={displayCount} /></span
 			>
 			{#if data?.running}
-				<IncDec inc={() => displayCount++} dec={() => displayCount && displayCount--} />
+				<IncDec mod={(n) => (displayCount = Math.max(Math.min(displayCount + n, 999), 0))} />
 			{/if}
 			<!-- <h1 class="text">Gatherers</h1> -->
 		</machine-count>
 		<machine-stats class="ml-3.5 flex items-center">
-			{#if data?.running}
+			{#if data?.running && displayCount}
 				<h1 in:upIn={{ duration: 200, delay: 50 }}>
 					Pages/s: <span>15,000</span>
 				</h1>

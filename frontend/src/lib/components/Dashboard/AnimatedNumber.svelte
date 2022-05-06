@@ -13,7 +13,7 @@
 	// });
 
 	export let number = 0;
-	export let digits = 2;
+	$: digits = Math.max(number.toString().length, 2);
 	$: num = number.toString().padStart(digits, '0');
 	export let height = 3;
 </script>
@@ -55,12 +55,21 @@
 		display: block;
 		float: left;
 		top: calc(var(--digit) * var(--height) * -1);
-		transition: top 0.3s ease;
+		opacity: 0.3;
+		transition: all 0.3s ease;
 		background-size: 200% 200%;
 		background-clip: text;
 		background-image: linear-gradient(270deg, #000000, #5a5a5a);
 		-webkit-text-fill-color: transparent;
 		-webkit-background-clip: text;
+	}
+
+	div.pulsing span {
+		opacity: 1;
 		animation: MovingBG 1s ease infinite;
+	}
+
+	:global(html.dark) div span {
+		background-image: linear-gradient(270deg, #e0e0e0, #ffffff);
 	}
 </style>

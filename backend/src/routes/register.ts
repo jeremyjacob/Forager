@@ -15,6 +15,12 @@ app.post('/register', async (req, res) => {
 			});
 		}
 
+		if (!user || !password) {
+			return res.status(400).send({
+				message: `Fill in all fields`,
+			});
+		}
+
 		user = await registerUser(email, password);
 		if (!user.enabled) return NOT_ENABLED(res);
 

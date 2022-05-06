@@ -5,6 +5,16 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	--color-background: hsl(0, 0%, 98%);
+}
+
+html.dark {
+	color: white;
+	--color-background: hsl(0, 0%, 3%);
+	background: var(--color-background);
+}
+
 body {
 	height: 100vh;
 	font-family: 'Work Sans', sans-serif;

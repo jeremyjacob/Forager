@@ -15,7 +15,7 @@ export const SIGNED_IN = (res: Response, id) =>
 			httpOnly: true,
 			sameSite: process.env.NODE_ENV == 'production' ? 'strict' : 'lax',
 			secure: process.env.NODE_ENV == 'production',
-			maxAge: 60 * 60 * 24 * 7, // one week
+			maxAge: 1000 * 60 * 60 * 24 * 7, // one week
 		})
 		.send({ ok: 1 });
 

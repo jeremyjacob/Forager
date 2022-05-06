@@ -26,7 +26,9 @@
 		on:contextmenu|preventDefault={rClick}
 	>
 		{#if inverted}Not{/if}
-		<span class="select-none p-1 bg-{tag.color}-200">{tag.name}</span>
+		<span class="select-none p-1 bg-{tag.color}-200 dark:text-black dark:font-semibold"
+			>{tag.name}</span
+		>
 	</div>
 {/if}
 {#if false}
@@ -47,4 +49,7 @@
 {/if}
 
 <style>
+	:global(html.dark) div {
+		filter: brightness(90%) saturate(150%);
+	}
 </style>

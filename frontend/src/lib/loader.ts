@@ -18,10 +18,9 @@ const endpoints = {
 	[Endpoint.Register]: { method: 'POST' }
 } as { [endpoint: string]: { method: string } };
 
-export const apiURL =
-	location.hostname == 'localhost'
-		? 'http://localhost:8000/'
-		: 'https://forager.jeremyjacob.dev/api/';
+const port = 8000;
+const prodURL = 'https://forager.jeremyjacob.dev/api/';
+export const apiURL = location.hostname == 'localhost' ? `http://localhost:${port}/` : prodURL;
 
 export async function load(
 	endpoint: Endpoint,
