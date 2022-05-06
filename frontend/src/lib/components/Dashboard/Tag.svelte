@@ -49,7 +49,7 @@
 {/if}
 
 <style>
-	:global(html.dark) div {
+	:global(html.dark) span {
 		filter: brightness(90%) saturate(150%);
 	}
 </style>

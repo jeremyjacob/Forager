@@ -117,7 +117,7 @@ export async function getNumberDomains(filter: object = {}) {
 		return domains.estimatedDocumentCount();
 	let count = 0;
 	try {
-		count = await timeout(domains.countDocuments(filter), 2000);
+		count = await timeout(domains.countDocuments(filter), 30000);
 	} catch (error) {
 		count = NaN;
 	}

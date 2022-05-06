@@ -57,9 +57,11 @@ body {
 	width: 7px;
 }
 
-.no-scroll::-webkit-scrollbar {
+.no-scroll::-webkit-scrollbar,
+.virtual-list-wrapper::-webkit-scrollbar {
 	-webkit-appearance: none;
-	width: 0px;
+	width: 0;
+	height: 0;
 }
 
 .temp-scroll::-webkit-scrollbar {
@@ -73,7 +75,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-	border-radius: 4px;
+	/* border-radius: 4px; */
 	background-color: rgba(192, 192, 192, 0.897);
 	/* -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5); */
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+	background-color: rgba(117, 117, 117, 0.797);
 }

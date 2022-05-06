@@ -37,7 +37,7 @@
 	async function loadMore() {
 		console.log('loadMore');
 
-		// if (loading) return;
+		if (loading) return;
 		scrolled = true;
 		loading = true;
 		const lastPage = $domainResults?.slice(-1)[0]?._id;
@@ -62,7 +62,7 @@
 	onDestroy(unsubscriber);
 </script>
 
-<div class="overflow-y-scroll grow mr-1.5" on:scroll={loadMore} bind:this={div}>
+<div class="overflow-y-scroll grow mr-[-0.5rem]" on:scroll={loadMore} bind:this={div}>
 	{#if $domainResults}
 		<VirtualList
 			bind:this={virtualList}
