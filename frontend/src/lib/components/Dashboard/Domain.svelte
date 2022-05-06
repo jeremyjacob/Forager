@@ -4,7 +4,7 @@
 	import { tags } from '$lib/stores';
 	import { onMount } from 'svelte';
 
-	export let i: number;
+	export let index: number;
 	export let result: Result;
 	export let scrolled: boolean;
 
@@ -12,9 +12,9 @@
 </script>
 
 <div
-	class="mb-2"
-	out:upIn={{ delay: (28 - i) * delay, distance: 6 }}
-	in:upIn={{ delay: i * delay, distance: -6, disable: scrolled }}
+	class="mb-2 h-[25px]"
+	out:upIn={{ delay: (28 - index) * delay, distance: 6 }}
+	in:upIn={{ delay: index * delay, distance: -6, disable: scrolled }}
 >
 	<a href="http://{result.domain}" target="_blank">
 		{result.domain}

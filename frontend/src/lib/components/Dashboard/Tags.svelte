@@ -66,7 +66,7 @@
 		<h1 class="text-3xl {!selected.size ? 'mb-3' : 'mb-0.5'}">Tags</h1>
 		{#if selected.size}
 			<span
-				class="absolute right-6 top-6 transition text-gray-900  hover:text-red-700 cursor-pointer"
+				class="absolute right-6 top-6 transition text-gray-900 dark:text-gray-200  dark:hover:text-red-400 hover:text-red-700 cursor-pointer"
 				transition:fade={{ duration: 150 }}
 				on:click={unselectAll}
 			>
@@ -104,7 +104,7 @@
 				</div>
 			{/each}
 			{#if !selected.size}
-				<h3 in:fade class="text-gray-400 text cursor-default select-none">
+				<h3 in:fade class="text-gray-400 dark:text-gray-300 text cursor-default select-none">
 					Select a tag to narrow search
 				</h3>
 			{/if}
@@ -112,7 +112,7 @@
 		{/if}
 	</tags-top>
 	{#if $tags}
-		<div class="overflow-y-scroll pt-1">
+		<div class="overflow-y-scroll pt-1 temp-scroll">
 			{#each $tags?.filter((t) => !selected.has(t.name)) as tag, i (tag)}
 				<div
 					in:receive={{ key: tag }}

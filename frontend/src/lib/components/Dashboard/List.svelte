@@ -1,11 +1,12 @@
 <script lang="ts">
 	import Domain from './Domain.svelte';
-
 	import { upIn } from '$lib/animations';
 	import { domainCount, domainFilter, domainResults, tags } from '$lib/stores';
 	import { stringify } from 'query-string';
 	import { onDestroy, onMount } from 'svelte';
 	import { Endpoint, load } from '$lib/loader';
+	import VirtualList from 'svelte-tiny-virtual-list';
+	import InfiniteLoading from 'svelte-infinite-loading';
 
 	let div: HTMLDivElement;
 	let loading = false;
@@ -34,26 +35,15 @@
 
 	// domainResults.set(test);
 	async function loadMore() {
-		if (distanceToBottom(div) < 350 || !scrolled) {
-			if (loading) return;
-			scrolled = true;
-			loading = true;
-			const lastPage = $domainResults?.slice(-1)[0]?._id;
-			const results = await loadResults(lastPage);
-			// console.log(results);
-			domainResults.push(results);
-			// $domainResults = $domainResults;
-			// console.log(
-			// 'Total tags before:',
-			// $domainResults.reduce((a, b) => a + (b.tags?.length ?? 0), 0)
-			// );
-			// domainResults.set($domainResults);
-			// console.log(
-			// 	'Total tags after:',
-			// 	$domainResults.reduce((a, b) => a + (b.tags?.length ?? 0), 0)
-			// );
-			loading = false;
-		}
+		console.log('loadMore');
+
+		// if (loading) return;
+		scrolled = true;
+		loading = true;
+		const lastPage = $domainResults?.slice(-1)[0]?._id;
+		const results = await loadResults(lastPage);
+		domainResults.push(results);
+		loading = false;
 	}
 	onMount(loadMore);
 
@@ -66,14 +56,30 @@
 		// console.log($domainResults.count);
 	});
 
+	$domainResults;
+	let virtualList;
+
 	onDestroy(unsubscriber);
 </script>
 
 <div class="overflow-y-scroll grow mr-1.5" on:scroll={loadMore} bind:this={div}>
 	{#if $domainResults}
-		{#each $domainResults as result, i}
-			<Domain {scrolled} {i} {result} />
-		{/each}
+		<VirtualList
+			bind:this={virtualList}
+			height={div?.getBoundingClientRect().height}
+			width="auto"
+			itemCount={$domainResults.length}
+			itemSize={30}
+		>
+			<div slot="item" let:index let:style {style} class="row">
+				{#if $domainResults[index]}
+					<Domain {scrolled} {index} result={$domainResults[index]} />
+				{/if}
+			</div>
+			<div slot="footer">
+				<InfiniteLoading on:infinite={loadMore} identifier={$domainResults} />
+			</div>
+		</VirtualList>
 	{/if}
 </div>
 

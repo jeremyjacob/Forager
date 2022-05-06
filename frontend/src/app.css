@@ -17,6 +17,7 @@ html.dark {
 
 body {
 	height: 100vh;
+	font-size: 1.1rem;
 	font-family: 'Work Sans', sans-serif;
 }
 
@@ -59,6 +60,16 @@ body {
 .no-scroll::-webkit-scrollbar {
 	-webkit-appearance: none;
 	width: 0px;
+}
+
+.temp-scroll::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 0px;
+}
+
+.temp-scroll:hover::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
