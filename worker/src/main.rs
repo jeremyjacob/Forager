@@ -32,14 +32,15 @@ static QUEUED_MATCHES: MatchQueue<'static> = Arc::new(Mutex::new(HashSet::new())
 static DOMAINS: Arc<Mutex<Vec<Domain>>> = Arc::new(Mutex::new(Vec::new()));
 
 #[dynamic]
-static API_KEY: String = env::var("FORAGER_API_KEY").expect("Environment variable FORAGER_API_KEY missing!");
+static API_KEY: String =
+    env::var("FORAGER_API_KEY").expect("Environment variable FORAGER_API_KEY is missing! ");
 
 #[dynamic]
 static HEADERS: HeaderMap = {
     let mut h = header::HeaderMap::new();
     h.insert(
         header::AUTHORIZATION,
-        header::HeaderValue::from_static(&*format!("Bearer {}", API_KEY)),
+        header::HeaderValue::from_static(&API_KEY),
     );
     h
 };
@@ -54,7 +55,6 @@ static CLIENT: reqwest::Client = Client::builder()
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let now = SystemTime::now();
     let tags = get_tags(&CLIENT).await?;
     let all_keywords = tags.values().flatten().collect::<Vec<_>>();
     let mut tag_lengths = BTreeMap::new();
@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut scheduler = AsyncScheduler::new();
         scheduler.every(1.seconds()).run(async || {
-            println!("Sched HEAD");
+            // println!("Sched HEAD");
             post_results().await;
             QUEUED_MATCHES.lock().unwrap().clear();
         });
@@ -79,10 +79,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
-    for i in 0..LIFETIME {
+    for i in 1..LIFETIME {
+        let now = SystemTime::now();
         let result: Vec<Domain> = get_domains(&CLIENT).await?;
         DOMAINS.lock().unwrap().clone_from(&result);
-        println!("Domains {:?}", result);
+        // println!("Domains {:?}", result);
         // let test_domain = Domain {
         //     _id: "".to_string(),
         //     domain: "hbr.org".to_string(),
@@ -95,7 +96,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let elapsed = now.elapsed()?;
         let elapsed_s = elapsed.as_millis() as f64 / 1000.0;
         println!(
-            "Completed in {:.2} sec. {} failed. {} completed.",
+            "Completed age {}/{} in {:.2} sec. {} failed. {} completed.",
+            i + 1,
+            LIFETIME,
             elapsed_s,
             FAILED.fetch_add(0, Ordering::SeqCst),
             COMPLETED.fetch_add(0, Ordering::SeqCst)
@@ -103,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // parse_out_tags("test.com".to_string(), "poppy and<style>\nNOPE\n</style> <P>NOPE2</P>pippin <STYLE>NOPE3</STYLE>Education poppy".to_string(), &all_keywords, &tag_lengths);
-    println!("{:?}", QUEUED_MATCHES.lock().unwrap());
+    // println!("{:?}", QUEUED_MATCHES.lock().unwrap());
     // post_results(&CLIENT, &QUEUED_MATCHES);
     Ok(())
 }
@@ -165,14 +168,14 @@ async fn fetch_all<'a, 's>(
                 Ok(resp) => {
                     match resp.text().await {
                         Ok(text) => {
-                            println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
+                            // println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
                             COMPLETED.fetch_add(1, Ordering::SeqCst);
                             let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
                             // println!("FOUND {}: {:?}", result.domain, tags);
                             QUEUED_MATCHES.lock().unwrap().extend(tags);
                         }
                         Err(error) => {
-                            println!("ERROR reading {}: {:?}", result.domain, error);
+                            // println!("ERROR reading {}: {:?}", result.domain, error);
                             let tag_match = TagMatch {
                                 _id: result._id,
                                 tag: "Unreadable".to_string(),

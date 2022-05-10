@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ResultStream from './ResultStream.svelte';
 	import MachineControls from './MachineControls.svelte';
 	import List from './List.svelte';
 	import Tags from './Tags.svelte';
@@ -14,6 +15,7 @@
 	})();
 
 	let loading = true;
+	let resultStreamVisible = true;
 </script>
 
 <div class="dashboard grid overflow-hidden" class:fadeUp={loading}>
@@ -27,6 +29,9 @@
 	</main>
 	<aside class="bg-white border-l relative shadow-lg">
 		<Tags />
+		{#if resultStreamVisible}
+			<ResultStream />
+		{/if}
 		<MachineControls data={data?.machineControls} />
 	</aside>
 </div>

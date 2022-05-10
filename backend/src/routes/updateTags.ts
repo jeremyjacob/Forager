@@ -3,7 +3,7 @@ import { app } from '../main';
 import type { DataTag } from '../types';
 import { setTags } from '../db';
 
-app.get('/api/updateTags', async (req, res) => {
+app.get('/updateTags', async (req, res) => {
 	// console.log('updateTags');
 	const NOTION_SECRET = 'secret_C5zaRlv2TsQHaqI0oQL84m1tWW1W7tQhpfjZqUChCgf';
 	const DATABASE_ID = 'cf2066f1742a4ff7886d1fa2b1c40f08';

@@ -3,12 +3,15 @@ import type { WorkerTagMatch } from '../types';
 import { authCheck } from '../auth';
 import { reportBatch } from '../db';
 import { UNAUTHENTICATED } from '../responses';
+import { broadcast } from './stream';
+import { ObjectId } from 'mongodb';
 
-app.post('/api/report', async (req, res) => {
+app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
-	const json = req.body as WorkerTagMatch[];
-	const response = await reportBatch(json);
+	const data = req.body as WorkerTagMatch[];
+	const response = await reportBatch(data);
+	broadcast('result', { data, response });
 
 	return res.send({
 		ok: !response.hasWriteErrors(),

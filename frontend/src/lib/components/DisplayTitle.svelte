@@ -1,8 +1,10 @@
 <script lang="ts">
 </script>
 
-<div class="text text-9xl tracking-wider font-semibold mb-6">
-	<span style:--i={0}>F</span><span style:--i={1}>O</span><span style:--i={2}>R</span><span style:--i={3}>A</span><span style:--i={2}>G</span><span style:--i={1}>E</span><span style:--i={0}>R</span>
+<div class="text text-9xl tracking-wider font-semibold mb-6 dark:text-white">
+	<span style:--i={0}>F</span><span style:--i={1}>O</span><span style:--i={2}>R</span><span
+		style:--i={3}>A</span
+	><span style:--i={2}>G</span><span style:--i={1}>E</span><span style:--i={0}>R</span>
 </div>
 
 <style>

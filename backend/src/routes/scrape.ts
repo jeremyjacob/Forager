@@ -4,6 +4,8 @@ import { makeFilter } from './results';
 import { authCheck } from '../auth';
 import { getDomains } from '../db';
 import { UNAUTHENTICATED } from '../responses';
+import { FETCHES_TARGET } from '../config';
+import { broadcast } from './stream';
 
 function unArray(input: string | string[]) {
 	if (typeof input == 'string') return input;
@@ -17,11 +19,10 @@ function array(input: string | string[]) {
 }
 
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
-const FETCHES_TARGET = 1;
 
-app.get('/api/scrape', async (req, res) => {
+app.get('/scrape', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-
+	broadcast('msg', 'GET /scrape');
 	const { query } = queryString.parseUrl(req.url, {
 		arrayFormat: 'comma',
 	});
@@ -29,7 +30,6 @@ app.get('/api/scrape', async (req, res) => {
 	const lastPage = unArray(query.lastPage);
 	const filter = await makeFilter(query);
 	const date = new Date();
-	date.setMinutes(date.getMinutes() - 3); // Lock expires in 3 minutes
 	filter.fetches = { $not: { $gte: FETCHES_TARGET } };
 	filter.lock = { $not: { $gt: date } };
 

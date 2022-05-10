@@ -4,7 +4,7 @@
 	import { tags } from '$lib/stores';
 	import { onMount } from 'svelte';
 
-	export let i: number;
+	export let index: number;
 	export let result: Result;
 	export let scrolled: boolean;
 
@@ -12,26 +12,28 @@
 </script>
 
 <div
-	class="mb-2"
-	out:upIn={{ delay: (28 - i) * delay, distance: 6 }}
-	in:upIn={{ delay: i * delay, distance: -6, disable: scrolled }}
+	class="mb-2 h-[25px] flex"
+	out:upIn={{ delay: (28 - index) * delay, distance: 6 }}
+	in:upIn={{ delay: index * delay, distance: -6, disable: scrolled }}
 >
-	<a href="http://{result.domain}" target="_blank">
+	<a href="http://{result.domain}" target="_blank" class="whitespace-nowrap">
 		{result.domain}
 	</a>
-	<span class="overflow-x-hidden">
+	<div
+		class="inline-block overflow-hidden overflow-x-scroll float-left w-full whitespace-nowrap no-scroll"
+	>
 		{#if result.tags?.length}
-			{#each result.tags.slice(0, 8) as tagName}
+			{#each result.tags.slice(0, 89) as tagName}
 				{@const tagf = $tags?.find((tag) => tag.name == tagName)}
 				<div class="inline-block scale-90">
 					<Tag tag={tagf} keywords={result.snippets[tagName]} />
 				</div>
 			{/each}
-			{#if result.tags.length > 8}
-				...
-			{/if}
+			<!-- {#if result.tags.length > 8} -->
+			<!-- ... -->
+			<!-- {/if} -->
 		{/if}
-	</span>
+	</div>
 </div>
 
 <style>

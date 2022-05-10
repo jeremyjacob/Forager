@@ -6,7 +6,7 @@ import { authCheck } from '../auth';
 import { getDomains, getNumberDomains } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 
-app.get('/api/count', async (req, res) => {
+app.get('/count', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	const { query } = queryString.parseUrl(req.url, { arrayFormat: 'comma' });

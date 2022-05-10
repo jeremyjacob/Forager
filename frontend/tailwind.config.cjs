@@ -1,6 +1,6 @@
 const config = {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
-
+	// darkMode: 
 	theme: {
 		extend: {
 			colors: {
@@ -15,7 +15,11 @@ const config = {
 					'600': '#5e5e5e',
 					'700': '#484848',
 					'800': '#323232',
+					'850': '#2a2a2a',
 					'900': '#1f1f1f',
+					'950': '#101010',
+					'975': '#0a0a0a',
+					'990': '#050505',
 				},
 				cerise: {
 					'50': '#fff6f6',

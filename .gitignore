@@ -6,3 +6,4 @@ Forager-Chief.pem
 /node_modules
 pnpm-lock.yaml
 *.pem
+.env

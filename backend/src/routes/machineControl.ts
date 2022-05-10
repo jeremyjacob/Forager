@@ -3,7 +3,7 @@ import { authCheck } from '../auth';
 import { setMachineControls } from '../db';
 import { NO_BODY, UNAUTHENTICATED } from '../responses';
 
-app.post('/api/machineControl', async (req, res) => {
+app.post('/machineControl', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 	if (!req.body) return NO_BODY(res);
 

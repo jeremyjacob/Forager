@@ -4,7 +4,7 @@ import { NOT_ENABLED, SIGNED_IN } from '../responses';
 import { request } from 'https';
 import { app } from '../main';
 
-app.post('/api/register', async (req, res) => {
+app.post('/register', async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		let user = (await getUserByEmail(email)) as User;
@@ -12,6 +12,12 @@ app.post('/api/register', async (req, res) => {
 		if (user) {
 			return res.status(409).send({
 				message: `User already exists`,
+			});
+		}
+
+		if (!user || !password) {
+			return res.status(400).send({
+				message: `Fill in all fields`,
 			});
 		}
 

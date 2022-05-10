@@ -29,7 +29,7 @@
 <div class="ml-7 h-screen">
 	<PageTitle title="login" />
 	<div class="w-1/3 min-w-max m-auto flex flex-col justify-center h-[60%]">
-		<div class="p-5 bg-white">
+		<div class="p-5 bg-white dark:bg-gray-990">
 			<form on:submit|preventDefault={submit} class="space-y-5 {$$props.class}">
 				<Input label="Email" id="email" name="email" type="email" bind:value={email} required />
 				<Input

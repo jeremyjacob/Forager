@@ -3,7 +3,7 @@ import { authCheck } from '../auth';
 import { UNAUTHENTICATED } from '../responses';
 import { app } from '../main';
 
-app.get('/api/tags', async (req, res) => {
+app.get('/tags', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
 	let tags = await getTags();

@@ -31,7 +31,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 	res.status(500).send(err.stack);
 });
 
-app.get('/api/', (req, res) => {
+app.get('/', (req, res) => {
 	res.send('DELETE /climate/change');
 });
 
@@ -39,6 +39,7 @@ fs.readdirSync('./src/routes').forEach(
 	(route) => import('./routes/' + route.replace('.ts', ''))
 );
 
+// console.log('2');
 const port = 8000;
 app.listen(port);
 console.log('Forager server alive on port ' + port);
