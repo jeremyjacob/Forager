@@ -208,6 +208,7 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 			},
 		})
 	);
+	console.log(batch);
 	try {
 		const res = await workers.bulkWrite(batch);
 		// console.log(res);
