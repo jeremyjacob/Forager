@@ -7,34 +7,48 @@
 
 	export let data: MachineControls;
 
-	$: displayCount = data?.running ? data?.desiredCount : 0;
+	$: localCount = data?.desiredCount ?? 0;
 
-	let init = false;
-	$: {
-		if (!init) {
-			init = true;
-		} else if (data) {
-			displayCount;
-			load(Endpoint.MachineControl, { body: data });
-		}
+	function setLocalCount(num: number) {
+		localCount = num;
+		if (num) data.lastCount = num;
+		load(Endpoint.MachineControl, { body: { desiredCount: localCount } });
 	}
 </script>
 
 <div class="absolute bottom-0 w-full h-24 bg-white border-t p-4 pt-5 dark:bg-gray-990">
 	<div class="flex">
 		<machine-count class="flex flex-row gap-0">
-			<span class="cursor-pointer" on:click={() => (data.running = !data.running)}>
-				<AnimatedNumber bind:number={displayCount} /></span
+			<span
+				class="cursor-pointer"
+				on:click={() => setLocalCount(localCount ? 0 : data?.lastCount || 1)}
 			>
-			{#if data?.running}
-				<IncDec mod={(n) => (displayCount = Math.max(Math.min(displayCount + n, 999), 0))} />
+				<AnimatedNumber bind:number={localCount} /></span
+			>
+			{#if localCount}
+				<IncDec mod={(n) => setLocalCount(Math.max(Math.min(localCount + n, 999), 0))} />
 			{/if}
 			<!-- <h1 class="text">Gatherers</h1> -->
 		</machine-count>
 		<machine-stats class="ml-3.5 flex items-center">
-			{#if data?.running && displayCount}
+			{#if localCount}
 				<h1 in:upIn={{ duration: 200, delay: 50 }}>
-					Pages/s: <span>15,000</span>
+					{#if data}
+						<div class="text-xs font-medium uppercase">
+							{#if data.desiredCount > data.runningCount && !data.pendingCount}
+								Awaiting workers
+							{:else if data.pendingCount}
+								Scaling up workers
+							{:else if !data.desiredCount && data.runningCount}
+								Scaling down workers
+							{:else if data.runningCount}
+								Forager Running
+							{:else}
+								Forager Stalled
+							{/if}
+						</div>
+					{/if}
+					<div>Rate: <span>15,000</span></div>
 				</h1>
 			{:else}
 				<h1 in:upIn={{ duration: 250, delay: 250, distance: -6 }}>Forager not running</h1>

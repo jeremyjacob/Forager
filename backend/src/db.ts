@@ -157,23 +157,19 @@ export async function setTags(tags: DataTag[]) {
 // Mainly, we are setting desiredCount, the number of workers we want working
 export async function setMachineControls({
 	desiredCount,
-	running,
 }: {
 	desiredCount: number;
-	running: boolean;
 }) {
 	await awaitConnect();
-	const workers = await col('workers');
+	const workers = await col('ref');
 	// Only add these to the update object if they are defined
-	const update = Object.assign(
-		{},
-		desiredCount && { desiredCount },
-		running && { running }
-	);
-	if (!Object.values(update).length) return null;
+	const update = {
+		desiredCount,
+	};
+	if (desiredCount) update['lastCount'] = desiredCount;
 
 	const res = await workers.updateOne(
-		{ type: 'controller' },
+		{ name: 'controller' },
 		{ $set: update }
 	);
 	return res;
@@ -181,8 +177,8 @@ export async function setMachineControls({
 
 export async function getMachineControls() {
 	await awaitConnect();
-	const workers = await col('workers');
-	const res = await workers.findOne({ type: 'controller' });
+	const workers = await col('ref');
+	const res = await workers.findOne({ name: 'controller' });
 	return res;
 }
 
