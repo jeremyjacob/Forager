@@ -5,7 +5,7 @@ import { setTags } from '../db';
 
 app.get('/updateTags', async (req, res) => {
 	// console.log('updateTags');
-	const NOTION_SECRET = 'secret_C5zaRlv2TsQHaqI0oQL84m1tWW1W7tQhpfjZqUChCgf';
+	const NOTION_SECRET = process.env['NOTION_SECRET'];
 	const DATABASE_ID = 'cf2066f1742a4ff7886d1fa2b1c40f08';
 	const notion = new Client({
 		auth: NOTION_SECRET,
@@ -47,5 +47,5 @@ app.get('/updateTags', async (req, res) => {
 
 	const { acknowledged } = await setTags(data);
 
-	res.send({ ok: acknowledged });
+	res.send(data);
 });

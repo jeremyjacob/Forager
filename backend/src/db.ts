@@ -19,9 +19,9 @@ if (!process.env.MONGOPW) throw Error('MONGOPW not set!');
 const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/forager?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
-	connectTimeoutMS: 3000,
-	socketTimeoutMS: 3000,
-	serverSelectionTimeoutMS: 3000,
+	connectTimeoutMS: 1000 * 60,
+	socketTimeoutMS: 1000 * 60,
+	serverSelectionTimeoutMS: 1000 * 60,
 });
 let connected = false;
 let connectedCallback = () => {};
@@ -85,23 +85,29 @@ export async function getDomains(
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 
 	let results: WithId<Document>[] = undefined;
-	const session = client.startSession();
+	// const session = client.startSession();
 	try {
-		await session.withTransaction(async () => {
-			results = await domains.find(filter).limit(count).toArray();
-			const resultIds = results.map((doc) => doc._id);
-			if (lock) {
-				const date = new Date();
-				date.setMinutes(date.getMinutes() + 3); // Lock expires in 3 minutes
-				await domains.updateMany(
-					{ _id: { $in: resultIds } },
-					{ $set: { lock: date } },
-					{ session }
-				);
-			}
-		});
+		// await session.withTransaction(async () => {
+		results = await domains.find(filter).limit(count).toArray();
+		const resultIds = results.map((doc) => doc._id);
+		if (lock) {
+			const date = new Date();
+			date.setMinutes(date.getMinutes() + 3); // Lock expires in 3 minutes
+			await domains.updateMany(
+				{ _id: { $in: resultIds } },
+				{ $set: { lock: date } }
+				// { session }
+			);
+		}
+		// });
+	} catch (error) {
+		console.error(
+			'Domain lock error',
+			error,
+			`lock: ${lock}, lastPage: ${lastPage}, results: ${results}`
+		);
 	} finally {
-		await session.endSession();
+		// await session.endSession();
 		// await client.close();
 	}
 
@@ -146,11 +152,16 @@ export async function getTags() {
 export async function setTags(tags: DataTag[]) {
 	await awaitConnect();
 	const reference = await col('ref');
-	return reference.updateOne(
-		{ name: 'tags' },
-		{ $set: { tags } },
-		{ upsert: true }
-	);
+	try {
+		return reference.updateOne(
+			{ name: 'tags' },
+			{ $set: { tags } },
+			{ upsert: true }
+		);
+	} catch (error) {
+		console.error('Error updating tags', error);
+	}
+	return { acknowledged: false };
 }
 
 // Machine controls are the control plane for ECS
@@ -204,9 +215,17 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 			},
 		})
 	);
-	const res = await workers.bulkWrite(batch);
-	console.log(res);
-	return res;
+	// console.log(JSON.stringify(batch));
+	try {
+		const res = await workers.bulkWrite(batch);
+		// console.log(res);
+		return res;
+	} catch (error) {
+		return {
+			error,
+			matchedCount: null,
+		};
+	}
 }
 
 // #region Auth Functions
