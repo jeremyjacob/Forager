@@ -6,11 +6,12 @@ import { UNAUTHENTICATED } from '../responses';
 import { broadcast } from './stream';
 import { ObjectId } from 'mongodb';
 
-const tagMatchQueue: WorkerTagMatch[] = [];
+let tagMatchQueue: WorkerTagMatch[] = [];
 
 setInterval(async () => {
 	if (!tagMatchQueue.length) return;
 	const response = await reportBatch(tagMatchQueue);
+	if (response.matchedCount) tagMatchQueue = [];
 	console.log(`Batched out ${response.matchedCount} results`);
 }, 1000 * 1);
 
