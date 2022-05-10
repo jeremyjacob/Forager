@@ -9,6 +9,7 @@ import { ObjectId } from 'mongodb';
 const tagMatchQueue: WorkerTagMatch[] = [];
 
 setInterval(async () => {
+	if (!tagMatchQueue.length) return;
 	const response = await reportBatch(tagMatchQueue);
 	console.log(`Batched out ${response.matchedCount} results`);
 }, 1000 * 1);
