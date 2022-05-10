@@ -85,25 +85,25 @@ export async function getDomains(
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 
 	let results: WithId<Document>[] = undefined;
-	const session = client.startSession();
+	// const session = client.startSession();
 	try {
-		await session.withTransaction(async () => {
-			results = await domains.find(filter).limit(count).toArray();
-			const resultIds = results.map((doc) => doc._id);
-			if (lock) {
-				const date = new Date();
-				date.setMinutes(date.getMinutes() + 3); // Lock expires in 3 minutes
-				await domains.updateMany(
-					{ _id: { $in: resultIds } },
-					{ $set: { lock: date } },
-					{ session }
-				);
-			}
-		});
+		// await session.withTransaction(async () => {
+		results = await domains.find(filter).limit(count).toArray();
+		const resultIds = results.map((doc) => doc._id);
+		if (lock) {
+			const date = new Date();
+			date.setMinutes(date.getMinutes() + 3); // Lock expires in 3 minutes
+			await domains.updateMany(
+				{ _id: { $in: resultIds } },
+				{ $set: { lock: date } }
+				// { session }
+			);
+		}
+		// });
 	} catch (error) {
 		console.error('Domain lock error', error);
 	} finally {
-		await session.endSession();
+		// await session.endSession();
 		// await client.close();
 	}
 
