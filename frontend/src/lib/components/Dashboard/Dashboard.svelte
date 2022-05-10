@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Stats from './Stats.svelte';
 	import ResultStream from './ResultStream.svelte';
 	import MachineControls from './MachineControls.svelte';
 	import List from './List.svelte';
@@ -32,6 +33,7 @@
 		{#if resultStreamVisible}
 			<ResultStream />
 		{/if}
+		<!-- <Stats /> -->
 		<MachineControls data={data?.machineControls} />
 	</aside>
 </div>

@@ -6,10 +6,11 @@ type DataTag = {
 
 type MachineControls = {
 	desiredCount: number;
+	lastCount: number;
 	pendingCount: number;
 	runningCount: number;
-	filter: string;
-	running: boolean;
+	// filter: string;
+	// running: boolean;
 };
 
 type DashboardData = {

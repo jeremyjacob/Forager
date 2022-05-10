@@ -64,6 +64,10 @@
 		-webkit-background-clip: text;
 	}
 
+	div:hover span {
+		opacity: 0.5;
+	}
+
 	div.pulsing span {
 		opacity: 1;
 		animation: MovingBG 1s ease infinite;
