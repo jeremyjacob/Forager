@@ -16,9 +16,9 @@ if (!process.env.MONGOPW) throw Error('MONGOPW not set!');
 const uri = `mongodb+srv://app:${process.env.MONGOPW}@forager-cluster.szrph.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
-	connectTimeoutMS: 3000,
-	socketTimeoutMS: 3000,
-	serverSelectionTimeoutMS: 3000,
+	connectTimeoutMS: 9000,
+	socketTimeoutMS: 9000,
+	serverSelectionTimeoutMS: 9000,
 });
 let connected = false;
 let connectedCallback = () => {};
