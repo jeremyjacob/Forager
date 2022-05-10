@@ -101,7 +101,11 @@ export async function getDomains(
 		}
 		// });
 	} catch (error) {
-		console.error('Domain lock error', error);
+		console.error(
+			'Domain lock error',
+			error,
+			`lock: ${lock}, lastPage: ${lastPage}, results: ${results}`
+		);
 	} finally {
 		// await session.endSession();
 		// await client.close();
