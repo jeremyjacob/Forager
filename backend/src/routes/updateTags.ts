@@ -47,5 +47,5 @@ app.get('/updateTags', async (req, res) => {
 
 	const { acknowledged } = await setTags(data);
 
-	res.send({ ok: acknowledged });
+	res.send(data);
 });
