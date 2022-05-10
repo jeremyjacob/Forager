@@ -100,6 +100,8 @@ export async function getDomains(
 				);
 			}
 		});
+	} catch (error) {
+		console.error('Domain lock error', error);
 	} finally {
 		await session.endSession();
 		// await client.close();
@@ -146,11 +148,16 @@ export async function getTags() {
 export async function setTags(tags: DataTag[]) {
 	await awaitConnect();
 	const reference = await col('ref');
-	return reference.updateOne(
-		{ name: 'tags' },
-		{ $set: { tags } },
-		{ upsert: true }
-	);
+	try {
+		return reference.updateOne(
+			{ name: 'tags' },
+			{ $set: { tags } },
+			{ upsert: true }
+		);
+	} catch (error) {
+		console.error('Error updating tags', error);
+	}
+	return { acknowledged: false };
 }
 
 // Machine controls are the control plane for ECS
@@ -208,7 +215,7 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 			},
 		})
 	);
-	console.log(JSON.stringify(batch));
+	// console.log(JSON.stringify(batch));
 	try {
 		const res = await workers.bulkWrite(batch);
 		// console.log(res);
