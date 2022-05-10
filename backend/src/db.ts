@@ -208,9 +208,16 @@ export async function reportBatch(data: WorkerTagMatch[]) {
 			},
 		})
 	);
-	const res = await workers.bulkWrite(batch);
-	console.log(res);
-	return res;
+	try {
+		const res = await workers.bulkWrite(batch);
+		// console.log(res);
+		return res;
+	} catch (error) {
+		return {
+			error,
+			matchedCount: null,
+		};
+	}
 }
 
 // #region Auth Functions
