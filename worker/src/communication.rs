@@ -2,16 +2,14 @@ use crate::config::API_URL;
 use crate::types::*;
 use crate::{BATCH_SIZE, CLIENT, QUEUED_MATCHES};
 use reqwest::Client;
-use serde_json::json;
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::error::Error;
+use std::collections::BTreeMap;
 
 pub async fn post_results() -> Result<(), Box<dyn std::error::Error>> {
     let queue = QUEUED_MATCHES.lock().unwrap().clone();
-    // println!("POST QUEUE {:?}", queue);
     if queue.len() == 0 {
         return Ok(());
     }
+    println!("POST QUEUE {:?}", queue.len());
     // let json = serde_json::to_string(&queue)?;
     // println!("POST QUEUE {:?}", json);
     CLIENT
@@ -48,5 +46,3 @@ pub fn add_tag(tag_match: TagMatch) {
     // println!("Add tag {:?}", tag_match);
     QUEUED_MATCHES.lock().unwrap().insert(tag_match);
 }
-
-pub async fn add_error(id: &str, error: &str) {}
