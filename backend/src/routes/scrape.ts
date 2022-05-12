@@ -27,15 +27,13 @@ app.get('/scrape', async (req, res) => {
 		arrayFormat: 'comma',
 	});
 	const limit = parseInt(unArray(query.limit) || '100');
-	const lastPage = unArray(query.lastPage);
-	const filter = await makeFilter(query, {client: false});
+	const filter = await makeFilter(query, { client: false });
 	const date = new Date();
 	filter.fetches = { $not: { $gte: FETCHES_TARGET } };
 	filter.lock = { $not: { $gt: date } };
 
 	const data = await await getDomains(filter, {
 		limit,
-		lastPage: unArray(lastPage),
 		lock: true,
 	});
 	let body = data.map(({ domain, _id }) => ({ domain, _id }));
