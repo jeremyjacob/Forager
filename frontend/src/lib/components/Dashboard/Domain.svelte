@@ -18,7 +18,7 @@
 	<a
 		href="http://{result.domain}"
 		target="_blank"
-		class="whitespace-nowrap visited:text-purple-800"
+		class="whitespace-nowrap visited:text-purple-800 dark:visited:text-purple-400"
 	>
 		{result.domain}
 	</a>
