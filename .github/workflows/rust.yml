@@ -3,8 +3,6 @@ name: Create and publish a Docker image
 on:
     push:
         branches: ['main']
-        paths:
-            - 'worker/**'
 
 env:
     REGISTRY: ghcr.io
@@ -66,7 +64,7 @@ jobs:
                   context: worker
                   platforms: linux/arm64
                   push: true
-                  tags: latest
+                  tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
