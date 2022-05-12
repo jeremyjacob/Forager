@@ -165,13 +165,18 @@ async fn fetch_all<'a, 's>(
 ) {
     let fetches = futures::stream::iter(domains.into_iter().enumerate().map(|(index, result)| {
         let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
-		println!("REQUEST: {} i:{}", &result.domain, index);
+        println!("REQUEST: {} i:{}", &result.domain, index);
         async move {
-			match send_fut.await {
-				Ok(resp) => {
+            match send_fut.await {
+                Ok(resp) => {
                     match resp.text().await {
                         Ok(text) => {
-                            println!("RESPONSE: {} bytes from {} i:{}", text.len(), &result.domain, index);
+                            println!(
+                                "RESPONSE: {} bytes from {} i:{}",
+                                text.len(),
+                                &result.domain,
+                                index
+                            );
                             COMPLETED.fetch_add(1, Ordering::SeqCst);
                             let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
                             // println!("FOUND {}: {:?}", result.domain, tags);
@@ -202,7 +207,7 @@ async fn fetch_all<'a, 's>(
             }
         }
     }))
-        .buffer_unordered(THREADS)
-        .collect::<Vec<()>>();
+    .buffer_unordered(THREADS)
+    .collect::<Vec<()>>();
     fetches.await;
 }
