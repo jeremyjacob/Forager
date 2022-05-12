@@ -64,7 +64,7 @@ jobs:
                   context: worker
                   platforms: linux/arm64
                   push: true
-                  tags: ${{ steps.meta.outputs.tags }}
+                  tags: latest
                   labels: ${{ steps.meta.outputs.labels }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
