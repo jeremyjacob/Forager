@@ -33,7 +33,6 @@ export async function makeFilter(
 		filter.tags.$ne = [];
 		filter.tags.$nin.push('Unreadable');
 	}
-	console.log(filter);
 
 	return filter;
 }
@@ -41,6 +40,7 @@ export async function makeFilter(
 
 app.get('/results', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
+	console.log(`GET /results from ${req.ip}`);
 
 	const { query } = queryString.parseUrl(req.url, {
 		arrayFormat: 'comma',

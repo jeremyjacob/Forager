@@ -22,6 +22,7 @@ function array(input: string | string[]) {
 
 app.get('/scrape', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
+	console.log(`GET /scrape from ${req.ip}`);
 	broadcast('msg', 'GET /scrape');
 	const { query } = queryString.parseUrl(req.url, {
 		arrayFormat: 'comma',
