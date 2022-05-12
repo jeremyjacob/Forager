@@ -3,8 +3,6 @@ name: Create and publish a Docker image
 on:
     push:
         branches: ['main']
-        paths:
-            - 'worker/**'
 
 env:
     REGISTRY: ghcr.io
@@ -63,10 +61,10 @@ jobs:
             - name: Build and push Docker image
               uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
               with:
-                  context: .
+                  context: worker
                   platforms: linux/arm64
                   push: true
-                  tags: latest
+                  tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
