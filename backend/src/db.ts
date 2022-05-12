@@ -84,11 +84,15 @@ export async function getDomains(
 	const domains = await col('domains');
 	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 
+	console.log(filter);
 	let results: WithId<Document>[] = undefined;
 	// const session = client.startSession();
 	try {
 		// await session.withTransaction(async () => {
-		results = await domains.find(filter).limit(count).toArray();
+		results = await domains
+			.find(filter, { sort: { _id: 1 } })
+			.limit(count)
+			.toArray();
 		const resultIds = results.map((doc) => doc._id);
 		if (lock) {
 			const date = new Date();

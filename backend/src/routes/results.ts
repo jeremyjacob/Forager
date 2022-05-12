@@ -12,22 +12,29 @@ function unArray(input: string | string[]) {
 }
 
 function array(input: string | string[]) {
+	if (input == null) return [];
 	if (typeof input == 'string') return [input];
 	return input;
 }
 
-export async function makeFilter(query: queryString.ParsedQuery<string>) {
-	const includes = query.includes;
-	const excludes = query.excludes;
+export async function makeFilter(
+	query: queryString.ParsedQuery<string>,
+	{ client }: { client: boolean }
+) {
+	const includes = query.includes ?? [];
+	const excludes = query.excludes ?? [];
 	const filter: any = { tags: {}, TLD: { $in: await getTLDs() } };
-	// delete filter.TLD;
 
-	if (includes?.includes('All')) {
+	if (includes) filter.tags.$all = array(includes);
+	if (!filter.tags.$all.length) delete filter.tags.$all;
+	if (excludes) filter.tags.$nin = array(excludes);
+	if (client) {
 		filter.tags.$exists = true;
 		filter.tags.$ne = [];
-	} else if (includes) filter.tags.$all = array(includes);
-	if (excludes) filter.tags.$nin = array(excludes);
-	if (!includes && !excludes) delete filter.tags;
+		filter.tags.$nin.push('Unreadable');
+	}
+	console.log(filter);
+
 	return filter;
 }
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
@@ -40,8 +47,9 @@ app.get('/results', async (req, res) => {
 	});
 	const limit = parseInt(unArray(query.limit) || '100');
 	const lastPage = unArray(query.lastPage);
-	const filter = await makeFilter(query);
+	const filter = await makeFilter(query, { client: true });
 	// console.log(filter);
+	// console.log('unArray(lastPage)', unArray(lastPage));
 
 	const data = await getDomains(filter, {
 		limit,
