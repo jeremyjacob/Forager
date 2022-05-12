@@ -8,7 +8,20 @@ import { ObjectId } from 'mongodb';
 
 let tagMatchQueue: WorkerTagMatch[] = [];
 
+let averages = [];
+function addDatum(size: number) {
+	averages.push(size);
+	averages.slice(-10); // last 10 seconds
+}
+function getAverage() {
+	const added = averages.reduce((partialSum, a) => partialSum + a, 0);
+	return added / averages.length;
+}
+
 setInterval(async () => {
+	addDatum(tagMatchQueue.length);
+	console.log(`Average: ${getAverage()}/s`);
+
 	if (!tagMatchQueue.length) return;
 	const response = await reportBatch(tagMatchQueue);
 	if (response.matchedCount) tagMatchQueue = [];
@@ -18,7 +31,7 @@ setInterval(async () => {
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 	const data = req.body as WorkerTagMatch[];
-	console.log(`Report: ${data.length} domains from ${req.ip}`);
+	// console.log(`Report: ${data.length} domains from ${req.ip}`);
 	// if (data.length > 100) console.log(data);
 
 	tagMatchQueue.push(...data);
@@ -28,34 +41,3 @@ app.post('/report', async (req, res) => {
 		ok: true,
 	});
 });
-
-/*
-[
-  {
-    id: '623b632f4ce636977e694292',
-    tag: 'Online Forms',
-    keyword: 'form'
-  },
-  {
-    id: '623b632f4ce636977e694292',
-    tag: 'Staffing Agencies',
-    keyword: 'resources'
-  }
-]
-*/
-
-/*
-[
-	{
-		updateOne: {
-			filter: {_id: ObjectId(id)}
-			update: {
-				$addToSet: {
-					tags: tag
-					snippets.[tag]: keyword
-				}
-			}
-		}
-	}
-]
-*/

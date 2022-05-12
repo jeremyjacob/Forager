@@ -7,7 +7,6 @@ use reqwest::redirect::{Action, Attempt, Policy};
 use reqwest::{header, Client};
 use static_init::dynamic;
 use std::collections::{BTreeMap, HashSet};
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
 
