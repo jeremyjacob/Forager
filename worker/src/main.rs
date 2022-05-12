@@ -45,7 +45,7 @@ static HEADERS: HeaderMap = {
     h
 };
 
-#[dynamic]
+#[dynamic] //
 static CLIENT: reqwest::Client = Client::builder()
     // .connect_timeout(Duration::from_secs(TIMEOUT))
     .timeout(Duration::from_secs(TIMEOUT))

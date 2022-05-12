@@ -12,8 +12,8 @@
 
 <div
 	class="mb-2 h-[25px] flex"
-	out:upIn={{ delay: (28 - index) * delay, distance: 6 }}
-	in:upIn={{ delay: index * delay, distance: -6 }}
+	out:upIn={{ delay: (28 - index) * 0, distance: 6 }}
+	in:upIn={{ delay: 0, distance: -6 }}
 >
 	<a
 		href="http://{result.domain}"

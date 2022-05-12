@@ -10,15 +10,16 @@
 
 	let div: HTMLDivElement;
 	let loading = false;
+	let skipPages = 0;
 
 	function distanceToBottom(el: HTMLElement) {
 		return el.scrollHeight - el.offsetHeight - el.scrollTop;
 	}
 
-	async function loadResults(lastPage?: string) {
-		console.log('loadResults', 'lastPage', lastPage);
+	async function loadResults() {
+		console.log('loadResults', 'skipPages', skipPages);
 		const queryObj = {
-			lastPage,
+			skip: skipPages,
 			...$domainFilter
 		};
 		const query = stringify(queryObj, { arrayFormat: 'comma' });
@@ -37,12 +38,12 @@
 	async function loadMore() {
 		if (loading) return;
 		loading = true;
-		const lastPage = $domainResults?.slice(-1)[0]?._id;
-		const results = await loadResults(lastPage);
+		const results = await loadResults();
 		domainResults.push(results);
 		loading = false;
+		skipPages += 100;
 	}
-	onMount(loadMore);
+	// onMount(loadMore);
 
 	const unsubscriber = domainFilter.subscribe(async (f) => {
 		updateCount();
@@ -58,7 +59,7 @@
 	onDestroy(unsubscriber);
 </script>
 
-<div class="overflow-y-scroll grow mr-[-0.5rem]" on:scroll={loadMore} bind:this={div}>
+<div class="overflow-y-scroll grow mr-[-0.5rem]" bind:this={div}>
 	{#if $domainResults}
 		<VirtualList
 			bind:this={virtualList}

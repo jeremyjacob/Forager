@@ -46,14 +46,13 @@ app.get('/results', async (req, res) => {
 		arrayFormat: 'comma',
 	});
 	const limit = parseInt(unArray(query.limit) || '100');
-	const lastPage = unArray(query.lastPage);
+	const skip = unArray(query.skip);
 	const filter = await makeFilter(query, { client: true });
 	// console.log(filter);
-	// console.log('unArray(lastPage)', unArray(lastPage));
 
 	const data = await getDomains(filter, {
 		limit,
-		lastPage: unArray(lastPage),
+		skip: parseInt(unArray(skip)),
 	});
 	let body: WithId<Document>[] = data;
 
