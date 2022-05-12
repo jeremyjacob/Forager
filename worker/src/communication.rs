@@ -13,7 +13,7 @@ pub async fn post_results() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
     // let json = serde_json::to_string(&queue)?;
-    // println!("POST QUEUE {:?}", json);
+    println!("POST QUEUE {:?}", queue.len());
     CLIENT
         .post(API_URL.to_owned() + "report")
         .json(&queue)

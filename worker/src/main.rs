@@ -22,9 +22,6 @@ mod config;
 mod parsing;
 mod types;
 
-static COMPLETED: AtomicUsize = AtomicUsize::new(0);
-static FAILED: AtomicUsize = AtomicUsize::new(0);
-
 #[dynamic]
 static QUEUED_MATCHES: MatchQueue<'static> = Arc::new(Mutex::new(HashSet::new()));
 
@@ -79,6 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
+    println!("Scraping...");
     for i in 1..LIFETIME {
         let now = SystemTime::now();
         let result: Vec<Domain> = get_domains(&CLIENT).await?;
@@ -96,12 +94,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let elapsed = now.elapsed()?;
         let elapsed_s = elapsed.as_millis() as f64 / 1000.0;
         println!(
-            "Completed age {}/{} in {:.2} sec. {} failed. {} completed.",
+            "Completed age in {:.2} sec. {} failed. {} completed.",
             i + 1,
             LIFETIME,
             elapsed_s,
-            FAILED.fetch_add(0, Ordering::SeqCst),
-            COMPLETED.fetch_add(0, Ordering::SeqCst)
         );
     }
 
@@ -169,7 +165,6 @@ async fn fetch_all<'a, 's>(
                     match resp.text().await {
                         Ok(text) => {
                             // println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
-                            COMPLETED.fetch_add(1, Ordering::SeqCst);
                             let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
                             // println!("FOUND {}: {:?}", result.domain, tags);
                             QUEUED_MATCHES.lock().unwrap().extend(tags);
@@ -182,7 +177,6 @@ async fn fetch_all<'a, 's>(
                                 keyword: "".to_string(),
                             };
                             add_tag(tag_match);
-                            FAILED.fetch_add(1, Ordering::SeqCst);
                         }
                     }
                 }
@@ -194,7 +188,6 @@ async fn fetch_all<'a, 's>(
                         keyword: "".to_string(),
                     };
                     add_tag(tag_match);
-                    FAILED.fetch_add(1, Ordering::SeqCst);
                 }
             }
         }
