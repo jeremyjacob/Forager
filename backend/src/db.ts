@@ -77,18 +77,18 @@ options.lock is a boolean that describes whether or not to impose a 3 minute loc
 */
 export async function getDomains(
 	filter: object,
-	options: { limit: number; lastPage?: string; lock?: boolean }
+	options: { limit: number; skip?: number; lock?: boolean }
 ) {
 	await awaitConnect();
-	const { limit: count, lastPage, lock } = options;
+	const { limit: count, skip, lock } = options;
 	const domains = await col('domains');
-	if (lastPage) filter = { _id: { $gt: new ObjectId(lastPage) }, ...filter };
 
+	console.log(filter);
 	let results: WithId<Document>[] = undefined;
 	// const session = client.startSession();
 	try {
 		// await session.withTransaction(async () => {
-		results = await domains.find(filter).limit(count).toArray();
+		results = await domains.find(filter, { skip }).limit(count).toArray();
 		const resultIds = results.map((doc) => doc._id);
 		if (lock) {
 			const date = new Date();
@@ -104,7 +104,7 @@ export async function getDomains(
 		console.error(
 			'Domain lock error',
 			error,
-			`lock: ${lock}, lastPage: ${lastPage}, results: ${results}`
+			`lock: ${lock}, skip: ${skip}, results: ${results}`
 		);
 	} finally {
 		// await session.endSession();

@@ -12,13 +12,13 @@ setInterval(async () => {
 	if (!tagMatchQueue.length) return;
 	const response = await reportBatch(tagMatchQueue);
 	if (response.matchedCount) tagMatchQueue = [];
-	console.log(`Batched out ${response.matchedCount} results`);
+	// console.log(`Batched out ${response.matchedCount} results`);
 }, 1000 * 1);
 
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-
 	const data = req.body as WorkerTagMatch[];
+	console.log(`Report: ${data.length} domains from ${req.ip}`);
 	tagMatchQueue.push(...data);
 	broadcast('result', { data });
 

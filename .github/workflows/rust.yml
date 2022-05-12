@@ -5,6 +5,7 @@ on:
         branches: ['main']
         paths:
             - 'worker/**'
+            - '.github/workflows/rust.yml'
 
 env:
     REGISTRY: ghcr.io
@@ -66,7 +67,7 @@ jobs:
                   context: worker
                   platforms: linux/arm64
                   push: true
-                  tags: latest
+                  tags: ghcr.io/jeremyjacob/forager:latest
                   labels: ${{ steps.meta.outputs.labels }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max

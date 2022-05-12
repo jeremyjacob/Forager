@@ -21,8 +21,7 @@ const rawBodySaver = (req, res, buf: Buffer, encoding) => {
 	}
 };
 
-// test
-
+app.set('trust proxy', '127.0.0.1');
 app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(bodyParser.json({ verify: rawBodySaver }));
 app.use(cookieParser());

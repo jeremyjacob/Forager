@@ -1,5 +1,5 @@
 #![feature(async_closure)]
-
+//
 use clokwerk::{AsyncScheduler, TimeUnits};
 use futures::stream::StreamExt;
 use reqwest::header::HeaderMap;
@@ -42,12 +42,14 @@ static HEADERS: HeaderMap = {
     h
 };
 
-#[dynamic]
+#[dynamic] //
 static CLIENT: reqwest::Client = Client::builder()
-    .connect_timeout(Duration::from_secs(TIMEOUT))
+    // .connect_timeout(Duration::from_secs(TIMEOUT))
+    .timeout(Duration::from_secs(TIMEOUT))
     .default_headers(HEADERS.to_owned())
     .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0. 4844.82 Safari/537.36")
     .redirect(Policy::custom(redirect_policy))
+    .danger_accept_invalid_certs(env::var("DISABLE_SSL").is_ok())
     .build().unwrap();
 
 #[tokio::main]
@@ -58,6 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (name, keywords) in tags.iter() {
         tag_lengths.insert(name, keywords.len());
     }
+
     // println!("{}", all_keywords);
     // return Ok(());
 
@@ -156,21 +159,26 @@ async fn fetch_all<'a, 's>(
     all_keywords: &'a Vec<&String>,
     tag_lengths: &'a BTreeMap<&String, usize>,
 ) {
-    let fetches = futures::stream::iter(domains.into_iter().map(|result| {
+    let fetches = futures::stream::iter(domains.into_iter().enumerate().map(|(index, result)| {
         let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
-        // println!("REQUEST: {}", &result.domain);
+        println!("REQUEST: {} i:{}", &result.domain, index);
         async move {
             match send_fut.await {
                 Ok(resp) => {
                     match resp.text().await {
                         Ok(text) => {
-                            // println!("RESPONSE: {} bytes from {}", text.len(), &result.domain);
+                            println!(
+                                "RESPONSE: {} bytes from {} i:{}",
+                                text.len(),
+                                &result.domain,
+                                index
+                            );
                             let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
                             // println!("FOUND {}: {:?}", result.domain, tags);
                             QUEUED_MATCHES.lock().unwrap().extend(tags);
                         }
                         Err(error) => {
-                            // println!("ERROR reading {}: {:?}", result.domain, error);
+                            // println!("ERROR reading {} i:{} {:?}", result.domain, index, error);
                             let tag_match = TagMatch {
                                 _id: result._id,
                                 tag: "Unreadable".to_string(),
@@ -181,7 +189,7 @@ async fn fetch_all<'a, 's>(
                     }
                 }
                 Err(error) => {
-                    // println!("ERROR downloading {}: {:?}", result.domain, error);
+                    // println!("ERROR downloading {} i:{} {:?}", result.domain, index, error);
                     let tag_match = TagMatch {
                         _id: result._id,
                         tag: "Unreadable".to_string(),
@@ -192,7 +200,7 @@ async fn fetch_all<'a, 's>(
             }
         }
     }))
-        .buffer_unordered(THREADS)
-        .collect::<Vec<()>>();
+    .buffer_unordered(THREADS)
+    .collect::<Vec<()>>();
     fetches.await;
 }

@@ -10,15 +10,16 @@
 
 	let div: HTMLDivElement;
 	let loading = false;
-	let scrolled = false;
+	let skipPages = 0;
 
 	function distanceToBottom(el: HTMLElement) {
 		return el.scrollHeight - el.offsetHeight - el.scrollTop;
 	}
 
-	async function loadResults(lastPage?: string) {
+	async function loadResults() {
+		console.log('loadResults', 'skipPages', skipPages);
 		const queryObj = {
-			lastPage,
+			skip: skipPages,
 			...$domainFilter
 		};
 		const query = stringify(queryObj, { arrayFormat: 'comma' });
@@ -35,21 +36,17 @@
 
 	// domainResults.set(test);
 	async function loadMore() {
-		console.log('loadMore');
-
 		if (loading) return;
-		scrolled = true;
 		loading = true;
-		const lastPage = $domainResults?.slice(-1)[0]?._id;
-		const results = await loadResults(lastPage);
+		const results = await loadResults();
 		domainResults.push(results);
 		loading = false;
+		skipPages += 100;
 	}
-	onMount(loadMore);
+	// onMount(loadMore);
 
 	const unsubscriber = domainFilter.subscribe(async (f) => {
 		updateCount();
-		scrolled = false;
 		const results = await loadResults();
 		// console.log('domainFilter.subscribe set domainResults');
 		domainResults.set(results);
@@ -62,7 +59,7 @@
 	onDestroy(unsubscriber);
 </script>
 
-<div class="overflow-y-scroll grow mr-[-0.5rem]" on:scroll={loadMore} bind:this={div}>
+<div class="overflow-y-scroll grow mr-[-0.5rem]" bind:this={div}>
 	{#if $domainResults}
 		<VirtualList
 			bind:this={virtualList}
@@ -73,7 +70,7 @@
 		>
 			<div slot="item" let:index let:style {style} class="row">
 				{#if $domainResults[index]}
-					<Domain {scrolled} {index} result={$domainResults[index]} />
+					<Domain {index} result={$domainResults[index]} />
 				{/if}
 			</div>
 			<div slot="footer">
