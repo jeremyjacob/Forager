@@ -10,13 +10,13 @@
 
 	let div: HTMLDivElement;
 	let loading = false;
-	let scrolled = false;
 
 	function distanceToBottom(el: HTMLElement) {
 		return el.scrollHeight - el.offsetHeight - el.scrollTop;
 	}
 
 	async function loadResults(lastPage?: string) {
+		console.log('loadResults', 'lastPage', lastPage);
 		const queryObj = {
 			lastPage,
 			...$domainFilter
@@ -35,10 +35,7 @@
 
 	// domainResults.set(test);
 	async function loadMore() {
-		console.log('loadMore');
-
 		if (loading) return;
-		scrolled = true;
 		loading = true;
 		const lastPage = $domainResults?.slice(-1)[0]?._id;
 		const results = await loadResults(lastPage);
@@ -49,7 +46,6 @@
 
 	const unsubscriber = domainFilter.subscribe(async (f) => {
 		updateCount();
-		scrolled = false;
 		const results = await loadResults();
 		// console.log('domainFilter.subscribe set domainResults');
 		domainResults.set(results);
@@ -73,7 +69,7 @@
 		>
 			<div slot="item" let:index let:style {style} class="row">
 				{#if $domainResults[index]}
-					<Domain {scrolled} {index} result={$domainResults[index]} />
+					<Domain {index} result={$domainResults[index]} />
 				{/if}
 			</div>
 			<div slot="footer">

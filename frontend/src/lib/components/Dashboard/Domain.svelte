@@ -6,7 +6,6 @@
 
 	export let index: number;
 	export let result: Result;
-	export let scrolled: boolean;
 
 	const delay = 8;
 </script>
@@ -14,9 +13,13 @@
 <div
 	class="mb-2 h-[25px] flex"
 	out:upIn={{ delay: (28 - index) * delay, distance: 6 }}
-	in:upIn={{ delay: index * delay, distance: -6, disable: scrolled }}
+	in:upIn={{ delay: index * delay, distance: -6 }}
 >
-	<a href="http://{result.domain}" target="_blank" class="whitespace-nowrap">
+	<a
+		href="http://{result.domain}"
+		target="_blank"
+		class="whitespace-nowrap visited:text-purple-800"
+	>
 		{result.domain}
 	</a>
 	<div
