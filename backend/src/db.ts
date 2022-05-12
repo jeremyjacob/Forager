@@ -83,7 +83,7 @@ export async function getDomains(
 	const { limit: count, skip, lock } = options;
 	const domains = await col('domains');
 
-	console.log(filter);
+	// console.log(filter);
 	let results: WithId<Document>[] = undefined;
 	// const session = client.startSession();
 	try {
