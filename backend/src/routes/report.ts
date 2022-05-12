@@ -19,6 +19,9 @@ app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 	const data = req.body as WorkerTagMatch[];
 	console.log(`Report: ${data.length} domains from ${req.ip}`);
+	if (data.length > 100) {
+		console.log(data);
+	}
 	tagMatchQueue.push(...data);
 	broadcast('result', { data });
 
