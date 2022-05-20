@@ -1,4 +1,5 @@
 #![feature(async_closure)]
+
 //
 use clokwerk::{AsyncScheduler, TimeUnits};
 use futures::stream::StreamExt;
@@ -137,10 +138,9 @@ fn redirect_policy(attempt: Attempt) -> Action {
         match search_result {
             Err(_) => {}
             Ok(index) => {
-                let tag_match = TagMatch {
+                let tag_match = SnippetMatch {
                     _id: DOMAINS.lock().unwrap().get(index).unwrap()._id.clone(),
-                    tag: "Redirects".to_string(),
-                    keyword: "".to_string(),
+                    snippets: vec![],
                 };
                 add_tag(tag_match);
             }
@@ -172,16 +172,15 @@ async fn fetch_all<'a, 's>(
                                 &result.domain,
                                 index
                             );
-                            let tags = parse_out_tags(result._id, &text, all_keywords, tag_lengths);
+                            let tags = parse_out_tags(result._id, &text, all_keywords);
                             // println!("FOUND {}: {:?}", result.domain, tags);
                             QUEUED_MATCHES.lock().unwrap().extend(tags);
                         }
                         Err(error) => {
                             // println!("ERROR reading {} i:{} {:?}", result.domain, index, error);
-                            let tag_match = TagMatch {
+                            let tag_match = SnippetMatch {
                                 _id: result._id,
-                                tag: "Unreadable".to_string(),
-                                keyword: "".to_string(),
+                                snippets: vec![],
                             };
                             add_tag(tag_match);
                         }
@@ -189,17 +188,16 @@ async fn fetch_all<'a, 's>(
                 }
                 Err(error) => {
                     // println!("ERROR downloading {} i:{} {:?}", result.domain, index, error);
-                    let tag_match = TagMatch {
+                    let tag_match = SnippetMatch {
                         _id: result._id,
-                        tag: "Unreadable".to_string(),
-                        keyword: "".to_string(),
+                        snippets: vec![],
                     };
                     add_tag(tag_match);
                 }
             }
         }
     }))
-    .buffer_unordered(THREADS)
-    .collect::<Vec<()>>();
+        .buffer_unordered(THREADS)
+        .collect::<Vec<()>>();
     fetches.await;
 }

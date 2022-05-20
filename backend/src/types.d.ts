@@ -8,10 +8,14 @@ interface User {
 	enabled: boolean;
 }
 
-type WorkerTagMatch = {
+type WorkerSnippets = {
 	_id: string;
-	tag: string;
-	keyword: string;
+	snippets: string[];
+};
+
+type ScoredWorkerSnippets = {
+	_id: string;
+	snippets: { snippet: string; score?: number }[];
 };
 
 type DataTag = {

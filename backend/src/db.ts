@@ -9,7 +9,12 @@ import {
 } from 'mongodb';
 
 import { generateSalt, hasher } from './hasher';
-import type { DataTag, User, WorkerTagMatch } from './types';
+import type {
+	DataTag,
+	ScoredWorkerSnippets,
+	User,
+	WorkerSnippets,
+} from './types';
 import { timeout } from './utils';
 import { FETCHES_TARGET } from './config';
 
@@ -193,20 +198,21 @@ export async function getMachineControls() {
 	return res;
 }
 
-export async function reportBatch(data: WorkerTagMatch[]) {
+export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	await awaitConnect();
 	const workers = await col('domains');
-	const batch: AnyBulkWriteOperation<{}>[] = data.map(
-		({ _id, tag, keyword }) => ({
+	const batch: AnyBulkWriteOperation<{}>[] = scored.map(
+		({ _id, snippets }) => ({
 			updateOne: {
 				filter: { _id: new ObjectId(_id) },
 				update: {
-					$addToSet: {
-						tags: tag,
-						['snippets.' + tag]: keyword,
-					},
+					// $addToSet: {
+					// 	tags: tag,
+					// 	['snippets.' + tag]: keyword,
+					// },
 					$set: {
 						fetches: FETCHES_TARGET,
+						score: Math.max(...snippets.map((s) => s.score)),
 					},
 					$unset: {
 						lock: null,
