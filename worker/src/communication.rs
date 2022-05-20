@@ -42,7 +42,7 @@ pub async fn get_domains(client: &Client) -> Result<Vec<Domain>, reqwest::Error>
     Ok(res.json::<Vec<Domain>>().await?)
 }
 
-pub fn add_tag(snippet_match: SnippetMatch) {
+pub fn add_match(snippet_match: SnippetMatch) {
     // println!("Add tag {:?}", tag_match);
     QUEUED_MATCHES.lock().unwrap().insert(snippet_match);
 }

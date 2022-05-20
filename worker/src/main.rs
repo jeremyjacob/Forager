@@ -91,7 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // };
         // let result = vec![test_domain];
 
-        fetch_all(result, &all_keywords, &tag_lengths).await;
+        fetch_all(result, &all_keywords).await;
         // println!("{:?}", &all_keywords);
 
         let elapsed = now.elapsed()?;
@@ -156,7 +156,6 @@ fn redirect_policy(attempt: Attempt) -> Action {
 async fn fetch_all<'a, 's>(
     domains: Vec<Domain>,
     all_keywords: &'a Vec<&String>,
-    tag_lengths: &'a BTreeMap<&String, usize>,
 ) {
     let fetches = futures::stream::iter(domains.into_iter().enumerate().map(|(index, result)| {
         let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
