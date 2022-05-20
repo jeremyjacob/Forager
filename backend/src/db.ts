@@ -198,6 +198,31 @@ export async function getMachineControls() {
 	return res;
 }
 
+export async function getTotalDomains() {
+	await awaitConnect();
+	const workers = await col('ref');
+	const total = await workers.findOne({ name: 'total' });
+	return total.com;
+}
+
+export async function getFetched() {
+	await awaitConnect();
+	const workers = await col('ref');
+	const progress = await workers.findOne({ name: 'progress' });
+	if (!progress) return 0;
+	return progress[FETCHES_TARGET] ?? 0;
+}
+
+export async function recordFetch(amount: number) {
+	await awaitConnect();
+	const workers = await col('ref');
+	const progress = await workers.updateOne(
+		{ name: 'progress' },
+		{ $inc: { [FETCHES_TARGET]: amount } }
+	);
+	return !!progress.upsertedCount;
+}
+
 export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	await awaitConnect();
 	const workers = await col('domains');
