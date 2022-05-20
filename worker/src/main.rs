@@ -142,7 +142,7 @@ fn redirect_policy(attempt: Attempt) -> Action {
                     _id: DOMAINS.lock().unwrap().get(index).unwrap()._id.clone(),
                     snippets: vec![],
                 };
-                add_tag(tag_match);
+                add_match(tag_match);
             }
         }
         attempt.error("Too many redirects")
@@ -172,9 +172,9 @@ async fn fetch_all<'a, 's>(
                                 &result.domain,
                                 index
                             );
-                            let tags = parse_out_tags(result._id, &text, all_keywords);
+                            let snippet_match = parse_out_tags(result._id, &text, all_keywords);
                             // println!("FOUND {}: {:?}", result.domain, tags);
-                            QUEUED_MATCHES.lock().unwrap().extend(tags);
+                            add_match(snippet_match);
                         }
                         Err(error) => {
                             // println!("ERROR reading {} i:{} {:?}", result.domain, index, error);
@@ -182,7 +182,7 @@ async fn fetch_all<'a, 's>(
                                 _id: result._id,
                                 snippets: vec![],
                             };
-                            add_tag(tag_match);
+                            add_match(tag_match);
                         }
                     }
                 }
@@ -192,7 +192,7 @@ async fn fetch_all<'a, 's>(
                         _id: result._id,
                         snippets: vec![],
                     };
-                    add_tag(tag_match);
+                    add_match(tag_match);
                 }
             }
         }
