@@ -1,8 +1,51 @@
+use std::borrow::Cow;
 use std::collections::{BTreeMap, HashSet};
 use std::time::SystemTime;
-use aho_corasick::{AhoCorasickBuilder};
+use aho_corasick::{AhoCorasickBuilder, Match};
 use regex::{Regex};
 use crate::{SnippetMatch};
+
+fn is_delimiter(character: char) -> bool {
+    character.is_whitespace() && character != ' '
+}
+
+fn find_snippet<'a>(cow: &'a Cow<'a, str>, mat: Match) -> &'a str {
+    let mut indices = cow.char_indices();
+    let start = {
+        let mut index: usize = 0;
+        for i in (0..mat.start()).rev() {
+            let char = indices.nth(i);
+            match char {
+                None => {}
+                Some((i, character)) => {
+                    if is_delimiter(character) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+        }
+        index
+    };
+    // iterate from end of match out
+    let end = {
+        let mut index: usize = cow.len() - 1;
+        for i in mat.end()..cow.len() {
+            let char = indices.nth(i);
+            match char {
+                None => {}
+                Some((i, character)) => {
+                    if is_delimiter(character) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+        }
+        index
+    };
+    &cow[start..end]
+}
 
 pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std::string::String>) -> SnippetMatch {
     let mut now = SystemTime::now();
@@ -21,35 +64,7 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
         .build(all_keywords);
     for mat in ac.find_iter(&*cow) {
         // iterate from start of match out
-        let start = {
-            let mut index: usize = 0;
-            for i in (0..mat.start()).rev() {
-                let char = cow.chars().nth(i);
-                match char {
-                    None => {}
-                    Some(char) => {
-                        if char.is_whitespace() { index = i }
-                    }
-                }
-            }
-            index
-        };
-        // iterate from end of match out
-        let end = {
-            let mut index: usize = cow.len() - 1;
-            for i in mat.end()..cow.len() {
-                let char = cow.chars().nth(i);
-                match char {
-                    None => {}
-                    Some(char) => {
-                        if char.is_whitespace() { index = i }
-                    }
-                }
-            }
-            index
-        };
-
-        let snippet = &cow[start..end];
+        let snippet = find_snippet(&cow, mat);
         snippets.push(snippet.to_string());
     }
 
