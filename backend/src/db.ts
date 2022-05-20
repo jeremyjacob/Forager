@@ -202,24 +202,29 @@ export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	await awaitConnect();
 	const workers = await col('domains');
 	const batch: AnyBulkWriteOperation<{}>[] = scored.map(
-		({ _id, snippets }) => ({
-			updateOne: {
-				filter: { _id: new ObjectId(_id) },
-				update: {
-					// $addToSet: {
-					// 	tags: tag,
-					// 	['snippets.' + tag]: keyword,
-					// },
-					$set: {
-						fetches: FETCHES_TARGET,
-						score: Math.max(...snippets.map((s) => s.score)),
-					},
-					$unset: {
-						lock: null,
+		({ _id, snippets }) => {
+			const maxScore = Math.max(...snippets.map((s) => s.score));
+			const { snippet } = snippets.find(({ score }) => score == maxScore);
+			return {
+				updateOne: {
+					filter: { _id: new ObjectId(_id) },
+					update: {
+						// $addToSet: {
+						// 	tags: tag,
+						// 	['snippets.' + tag]: keyword,
+						// },
+						$set: {
+							fetches: FETCHES_TARGET,
+							score: maxScore,
+							snippet,
+						},
+						$unset: {
+							lock: null,
+						},
 					},
 				},
-			},
-		})
+			};
+		}
 	);
 	// console.log(JSON.stringify(batch));
 	try {

@@ -51,10 +51,8 @@ app.post('/report', async (req, res) => {
 	);
 
 	// tagMatchQueue.push(...data);
-	// reportBatch(scored);
+	reportBatch(scored);
 	broadcast('result', { scored });
 
-	return res.send({
-		scores: scored,
-	});
+	return res.send(scored);
 });
