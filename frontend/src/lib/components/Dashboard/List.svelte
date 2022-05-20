@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { minScore } from '$lib/stores';
 	import Domain from './Domain.svelte';
 	import { upIn } from '$lib/animations';
-	import { domainCount, domainFilter, domainResults, tags } from '$lib/stores';
+	import { domainCount, domainResults } from '$lib/stores';
 	import { stringify } from 'query-string';
 	import { onDestroy, onMount } from 'svelte';
 	import { Endpoint, load } from '$lib/loader';
@@ -12,26 +13,15 @@
 	let loading = false;
 	let skipPages = 0;
 
-	function distanceToBottom(el: HTMLElement) {
-		return el.scrollHeight - el.offsetHeight - el.scrollTop;
-	}
-
 	async function loadResults() {
 		console.log('loadResults', 'skipPages', skipPages);
 		const queryObj = {
 			skip: skipPages,
-			...$domainFilter
+			minScore: $minScore
 		};
 		const query = stringify(queryObj, { arrayFormat: 'comma' });
 		const data = await load(Endpoint.Results, { query });
 		return data as Result[];
-	}
-
-	async function updateCount() {
-		const query = stringify({ ...$domainFilter }, { arrayFormat: 'comma' });
-		const data = await load(Endpoint.Count, { query });
-		const count: number = data.count;
-		domainCount.set(count);
 	}
 
 	// domainResults.set(test);
@@ -45,16 +35,14 @@
 	}
 	// onMount(loadMore);
 
-	const unsubscriber = domainFilter.subscribe(async (f) => {
-		updateCount();
+	const unsubscriber = minScore.subscribe(async (f) => {
 		const results = await loadResults();
 		// console.log('domainFilter.subscribe set domainResults');
 		domainResults.set(results);
 		// console.log($domainResults.count);
 	});
 
-	$domainResults;
-	let virtualList;
+	let virtualList; // used by <VirtualList />
 
 	onDestroy(unsubscriber);
 </script>

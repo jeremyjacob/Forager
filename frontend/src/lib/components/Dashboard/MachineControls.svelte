@@ -4,44 +4,56 @@
 	import { upIn } from '$lib/animations';
 	import AnimatedNumber from './AnimatedNumber.svelte';
 	import { Endpoint, load } from '$lib/loader';
+	import { onMount } from 'svelte';
+	import type { DescribeServicesCommandOutput, Service } from '@aws-sdk/client-ecs';
 
-	export let data: MachineControls;
+	$: desiredCount = awsServiceData?.desiredCount ?? 0;
+	let updatesFrozen = false;
+	function freezeUpdates() {
+		updatesFrozen = true;
+		setTimeout(() => (updatesFrozen = false), 2500); // thaw
+	}
 
-	$: localCount = data?.desiredCount ?? 0;
+	let awsServiceData: Service;
+	setInterval(async () => {
+		if (updatesFrozen) return;
+		const output = (await load(Endpoint.Workers)) as DescribeServicesCommandOutput;
+		awsServiceData = output.services[0];
+	}, 1000);
 
-	function setLocalCount(num: number) {
-		localCount = num;
-		if (num) data.lastCount = num;
-		load(Endpoint.MachineControl, { body: { desiredCount: localCount } });
+	function setDesiredCount(num: number) {
+		desiredCount = num;
+		freezeUpdates();
+		console.log('Updating worker count to ', desiredCount);
+		load(Endpoint.SetWorkers, { body: { desiredCount: desiredCount } });
 	}
 </script>
 
-<div class="absolute bottom-0 w-full h-24 bg-white border-t p-4 pt-5 dark:bg-gray-990">
+<div class="w-full grow bg-white border-t p-4 pt-5 dark:bg-gray-990">
 	<div class="flex">
 		<machine-count class="flex flex-row gap-0">
-			<span
-				class="cursor-pointer"
-				on:click={() => setLocalCount(localCount ? 0 : data?.lastCount || 1)}
+			<span class="cursor-pointer" on:click={() => setDesiredCount(desiredCount)}>
+				<AnimatedNumber bind:number={desiredCount} /></span
 			>
-				<AnimatedNumber bind:number={localCount} /></span
-			>
-			{#if localCount}
-				<IncDec mod={(n) => setLocalCount(Math.max(Math.min(localCount + n, 999), 0))} />
+			{#if desiredCount}
+				<IncDec mod={(n) => setDesiredCount(Math.max(Math.min(desiredCount + n, 999), 0))} />
 			{/if}
 			<!-- <h1 class="text">Gatherers</h1> -->
 		</machine-count>
 		<machine-stats class="ml-3.5 flex items-center">
-			{#if localCount}
+			{#if desiredCount}
 				<h1 in:upIn={{ duration: 200, delay: 50 }}>
-					{#if data}
+					{#if awsServiceData}
 						<div class="text-xs font-medium uppercase">
-							{#if data.desiredCount > data.runningCount && !data.pendingCount}
+							{#if awsServiceData.desiredCount > awsServiceData.runningCount && !awsServiceData.pendingCount}
 								Awaiting workers
-							{:else if data.pendingCount}
-								Scaling up workers
-							{:else if !data.desiredCount && data.runningCount}
-								Scaling down workers
-							{:else if data.runningCount}
+							{:else if awsServiceData.pendingCount}
+								Scaling up workers ({awsServiceData.desiredCount -
+									awsServiceData.pendingCount}/{awsServiceData.desiredCount})
+							{:else if awsServiceData.desiredCount < awsServiceData.runningCount}
+								Scaling down workers ({awsServiceData.runningCount -
+									awsServiceData.desiredCount}/{awsServiceData.desiredCount})
+							{:else if awsServiceData.runningCount}
 								Forager Running
 							{:else}
 								Forager Stalled

@@ -3,7 +3,7 @@
 	import ResultStream from './ResultStream.svelte';
 	import MachineControls from './MachineControls.svelte';
 	import List from './List.svelte';
-	import Tags from './Tags.svelte';
+	import ScoreSelector from './ScoreSelector.svelte';
 	import DocumentCounter from '../DocumentCounter.svelte';
 	import PageTitle from '../PageTitle.svelte';
 	import Background from '../Background.svelte';
@@ -28,8 +28,8 @@
 		<List />
 		<!-- <Search /> -->
 	</main>
-	<aside class="bg-white border-l relative shadow-lg">
-		<Tags />
+	<aside class="bg-white border-l relative shadow-lg flex flex-col">
+		<ScoreSelector />
 		{#if resultStreamVisible}
 			<ResultStream />
 		{/if}

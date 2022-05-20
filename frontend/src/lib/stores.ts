@@ -13,7 +13,7 @@ function createResultStore() {
 	};
 }
 
-export const domainFilter = writable({ includes: [], excludes: [] });
+export const minScore = writable(0.8);
 export const domainResults = createResultStore();
 export const domainCount = writable<number>();
 export const tags = writable<DataTag[]>();

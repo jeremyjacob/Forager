@@ -11,9 +11,8 @@
 	});
 </script>
 
-<div class="absolute bottom-0 w-full h-24 bg-white border-t p-6 pt-5" transition:upIn>
+<!-- <div class="absolute bottom-0 w-full h-24 bg-white border-t p-6 pt-5" transition:upIn>
 	<code />
-</div>
-
+</div> -->
 <style>
 </style>

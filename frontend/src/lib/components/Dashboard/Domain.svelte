@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Tag from './Tag.svelte';
 	import { upIn } from '$lib/animations';
 	import { tags } from '$lib/stores';
 	import { onMount } from 'svelte';
@@ -29,7 +28,7 @@
 			{#each result.tags.slice(0, 89) as tagName}
 				{@const tagf = $tags?.find((tag) => tag.name == tagName)}
 				<div class="inline-block scale-90">
-					<Tag tag={tagf} keywords={result.snippets[tagName]} />
+					<!-- <Tag tag={tagf} keywords={result.snippets[tagName]} /> -->
 				</div>
 			{/each}
 			<!-- {#if result.tags.length > 8} -->
