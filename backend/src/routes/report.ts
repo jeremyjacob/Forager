@@ -3,7 +3,7 @@ import type { ScoredWorkerSnippets, WorkerSnippets } from '../types';
 import { authCheck } from '../auth';
 import { reportBatch } from '../db';
 import { NO_BODY, UNAUTHENTICATED } from '../responses';
-import { broadcast } from './stream';
+import { broadcast, broadcastStats } from './stream';
 import { ObjectId } from 'mongodb';
 import { modelInferenceArray } from '../classification';
 
@@ -43,16 +43,21 @@ app.post('/report', async (req, res) => {
 		})),
 	}));
 
+	const minLogScore = 0.85;
 	const logMetric = scored
-		.map((s) => s.snippets.filter((s) => s.score > 0.85).length)
+		.map((s) => s.snippets.filter((s) => s.score > minLogScore).length)
 		.reduce((a, b) => a + b);
 	console.log(
-		`Report: ${data.length} (${logMetric} >0.85) domains from ${req.ip}`
+		`Report: ${data.length} (${logMetric} >{minLogScore}) domains from ${req.ip}`
+	);
+	console.log(
+		scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
 	);
 
 	// tagMatchQueue.push(...data);
 	reportBatch(scored);
 	broadcast('result', { scored });
+	broadcastStats();
 
 	return res.send(scored);
 });

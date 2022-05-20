@@ -17,26 +17,18 @@ function array(input: string | string[]) {
 	return input;
 }
 
-export async function makeFilter(
-	query: queryString.ParsedQuery<string>,
-	{ client }: { client: boolean }
-) {
-	const includes = query.includes ?? [];
-	const excludes = query.excludes ?? [];
-	const filter: any = { tags: {}, TLD: { $in: await getTLDs() } };
+export async function makeFilter(query: queryString.ParsedQuery<string>) {
+	const filter: any = {
+		TLD: { $in: await getTLDs() },
+	};
 
-	if (includes) filter.tags.$all = array(includes);
-	if (!filter.tags.$all.length) delete filter.tags.$all;
-	if (excludes) filter.tags.$nin = array(excludes);
-	if (client) {
-		filter.tags.$exists = true;
-		filter.tags.$ne = [];
-		filter.tags.$nin.push('Unreadable');
+	const minScore = parseFloat(unArray(query.minScore));
+	if (minScore) {
+		filter.score = { $gte: minScore };
 	}
 
 	return filter;
 }
-// {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
 
 app.get('/results', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
@@ -47,7 +39,7 @@ app.get('/results', async (req, res) => {
 	});
 	const limit = parseInt(unArray(query.limit) || '100');
 	const skip = unArray(query.skip);
-	const filter = await makeFilter(query, { client: true });
+	const filter = await makeFilter(query);
 	// console.log(filter);
 
 	const data = await getDomains(filter, {
