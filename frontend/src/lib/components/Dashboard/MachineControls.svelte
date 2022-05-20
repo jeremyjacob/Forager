@@ -32,7 +32,7 @@
 <div class="w-full grow bg-white border-t p-4 pt-5 dark:bg-gray-990">
 	<div class="flex">
 		<machine-count class="flex flex-row gap-0">
-			<span class="cursor-pointer" on:click={() => setDesiredCount(desiredCount)}>
+			<span class="cursor-pointer" on:click={() => setDesiredCount(desiredCount ? 0 : 1)}>
 				<AnimatedNumber bind:number={desiredCount} /></span
 			>
 			{#if desiredCount}
@@ -60,7 +60,7 @@
 							{/if}
 						</div>
 					{/if}
-					<div>Rate: <span>15,000</span></div>
+					<div>Rate: <span>?</span></div>
 				</h1>
 			{:else}
 				<h1 in:upIn={{ duration: 250, delay: 250, distance: -6 }}>Forager not running</h1>
