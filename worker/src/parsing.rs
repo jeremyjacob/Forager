@@ -10,41 +10,32 @@ fn is_delimiter(character: char) -> bool {
 }
 
 fn find_snippet<'a>(cow: &'a Cow<'a, str>, mat: Match) -> &'a str {
-    let mut indices = cow.char_indices();
-    let start = {
-        let mut index: usize = 0;
-        for i in (0..mat.start()).rev() {
-            let char = indices.nth(i);
-            match char {
-                None => {}
-                Some((i, character)) => {
-                    if is_delimiter(character) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
+    let mut start_uindex = 0;
+    for (i, (char_pos, _)) in cow.char_indices().enumerate() {
+        if char_pos < mat.start() { continue; }
+        start_uindex = i;
+        break;
+    }
+
+    let mut snippet_start = 0;
+    let mut snippet_end = 0;
+    for (char_pos, char) in cow.char_indices().rev() {
+        if char_pos > mat.start() { continue; };
+        if is_delimiter(char) {
+            snippet_start = char_pos;
+            break;
         }
-        index
-    };
-    // iterate from end of match out
-    let end = {
-        let mut index: usize = cow.len() - 1;
-        for i in mat.end()..cow.len() {
-            let char = indices.nth(i);
-            match char {
-                None => {}
-                Some((i, character)) => {
-                    if is_delimiter(character) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
+    }
+    for (char_pos, char) in cow.char_indices() {
+        if char_pos < mat.start() { continue; };
+        if is_delimiter(char) {
+            snippet_end = char_pos;
+            break;
         }
-        index
-    };
-    &cow[start..end]
+    }
+
+    // println!("start_char_pos: {} end_char_pos: {}", snippet_start, snippet_end);
+    &cow[snippet_start..snippet_end]
 }
 
 pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std::string::String>) -> SnippetMatch {
@@ -65,7 +56,7 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
     for mat in ac.find_iter(&*cow) {
         // iterate from start of match out
         let snippet = find_snippet(&cow, mat);
-        snippets.push(snippet.to_string());
+        snippets.push(snippet.trim().to_string());
     }
 
     // println!("Parsed {} in {:.2}ms", &domain, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);

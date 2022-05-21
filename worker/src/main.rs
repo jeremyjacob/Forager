@@ -1,4 +1,5 @@
 #![feature(async_closure)]
+#![feature(iter_advance_by)]
 
 //
 use clokwerk::{AsyncScheduler, TimeUnits};
@@ -82,7 +83,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Scraping...");
     for i in 1..LIFETIME {
         let now = SystemTime::now();
-        let result: Vec<Domain> = get_domains(&CLIENT).await?;
+        // let result: Vec<Domain> = get_domains(&CLIENT).await?;
+        let result: Vec<Domain> = vec![Domain { _id: "623b6ee34ce636977ebe9698".to_string(), domain: "kratomforsale.us".to_string() }];
         DOMAINS.lock().unwrap().clone_from(&result);
         // println!("Domains {:?}", result);
         // let test_domain = Domain {
