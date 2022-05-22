@@ -1,9 +1,10 @@
 use std::borrow::Cow;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeSet, HashSet};
 use std::time::SystemTime;
 use aho_corasick::{AhoCorasickBuilder, Match};
 use regex::{Regex};
-use crate::{SnippetMatch};
+use futures::stream::StreamExt;
+use crate::{add_match, CLIENT, Domain, SnippetMatch, THREADS};
 
 fn is_delimiter(character: char) -> bool {
     character.is_whitespace() && character != ' '
@@ -47,7 +48,7 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
     // println!("Replaced {} in {:.2}ms", &id, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
     now = SystemTime::now();
 
-    let mut snippets = Vec::new();
+    let mut snippets = BTreeSet::new();
 
     // println!("{}", cow);
     let ac = AhoCorasickBuilder::new()
@@ -56,10 +57,53 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
     for mat in ac.find_iter(&*cow) {
         // iterate from start of match out
         let snippet = find_snippet(&cow, mat);
-        snippets.push(snippet.trim().to_string());
+        snippets.insert(snippet.trim().to_string());
     }
 
     // println!("Parsed {} in {:.2}ms", &domain, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
 
     SnippetMatch { _id: id.clone(), snippets }
+}
+
+pub async fn fetch_all(
+    domains: Vec<Domain>,
+    all_keywords: &Vec<&String>,
+) {
+    let fetches = futures::stream::iter(domains.into_iter().enumerate().map(|(index, result)| {
+        let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
+        // println!("REQUEST: {} i:{}", &result.domain, index);
+        async move {
+            match send_fut.await {
+                Ok(resp) => {
+                    match resp.text().await {
+                        Ok(text) => {
+                            let snippet_match = parse_out_tags(result._id, &text, all_keywords);
+                            let count = snippet_match.snippets.len();
+                            if count > 0 { println!("FOUND {}: {:?}", result.domain, count); }
+                            add_match(snippet_match);
+                        }
+                        Err(error) => {
+                            // println!("ERROR reading {} i:{} {:?}", result.domain, index, error);
+                            let blank_snippet = SnippetMatch {
+                                _id: result._id,
+                                snippets: BTreeSet::new(),
+                            };
+                            add_match(blank_snippet);
+                        }
+                    }
+                }
+                Err(error) => {
+                    // println!("ERROR downloading {} i:{} {:?}", result.domain, index, error);
+                    let blank_snippet = SnippetMatch {
+                        _id: result._id,
+                        snippets: BTreeSet::new(),
+                    };
+                    add_match(blank_snippet);
+                }
+            }
+        }
+    }))
+        .buffer_unordered(THREADS)
+        .collect::<Vec<()>>();
+    fetches.await;
 }

@@ -2,21 +2,19 @@
 #![feature(iter_advance_by)]
 
 //
-use clokwerk::{AsyncScheduler, TimeUnits};
-use futures::stream::StreamExt;
 use reqwest::header::HeaderMap;
-use reqwest::redirect::{Action, Attempt, Policy};
 use reqwest::{header, Client};
 use static_init::dynamic;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
 
 use crate::communication::*;
 use crate::config::*;
-use crate::parsing::parse_out_tags;
+use crate::parsing::{fetch_all, parse_out_tags};
 use crate::types::*;
 use std::env;
+use reqwest::redirect::Policy;
 
 mod communication;
 mod config;
@@ -62,36 +60,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         tag_lengths.insert(name, keywords.len());
     }
 
-    // println!("{}", all_keywords);
-    // return Ok(());
-
-    {
-        let mut scheduler = AsyncScheduler::new();
-        scheduler.every(1.seconds()).run(async || {
-            // println!("Sched HEAD");
-            post_results().await;
-            QUEUED_MATCHES.lock().unwrap().clear();
-        });
-        tokio::spawn(async move {
-            loop {
-                scheduler.run_pending().await;
-                tokio::time::sleep(Duration::from_millis(100)).await;
-            }
-        });
-    }
+    start_scheduler();
 
     println!("Scraping...");
-    for i in 1..LIFETIME {
+    for i in 0..LIFETIME {
         let now = SystemTime::now();
-        // let result: Vec<Domain> = get_domains(&CLIENT).await?;
-        let result: Vec<Domain> = vec![Domain { _id: "623b6ee34ce636977ebe9698".to_string(), domain: "kratomforsale.us".to_string() }];
+        let result: Vec<Domain> = get_domains(&CLIENT).await?;
+        // let result: Vec<Domain> = vec![Domain { _id: "623b6ee34ce636977ebe9698".to_string(), domain: "kratomforsale.us".to_string() }];
         DOMAINS.lock().unwrap().clone_from(&result);
-        // println!("Domains {:?}", result);
-        // let test_domain = Domain {
-        //     _id: "".to_string(),
-        //     domain: "hbr.org".to_string(),
-        // };
-        // let result = vec![test_domain];
 
         fetch_all(result, &all_keywords).await;
         // println!("{:?}", &all_keywords);
@@ -108,97 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // parse_out_tags("test.com".to_string(), "poppy and<style>\nNOPE\n</style> <P>NOPE2</P>pippin <STYLE>NOPE3</STYLE>Education poppy".to_string(), &all_keywords, &tag_lengths);
     // println!("{:?}", QUEUED_MATCHES.lock().unwrap());
-    // post_results(&CLIENT, &QUEUED_MATCHES);
+    post_results().await;
+    // tokio::time::sleep(Duration::from_secs(5)).await;
     Ok(())
-}
-
-fn redirect_policy(attempt: Attempt) -> Action {
-    // println!("{:?}", attempt);
-    let host = attempt.url().host_str().unwrap_or("A");
-    let prev_host = {
-        let first = attempt.previous().first();
-        match first {
-            None => "B",
-            Some(url) => {
-                url.host_str().unwrap_or("B") // different}
-            }
-        }
-    };
-
-    if attempt.previous().len() >= MAX_REDIRECTS {
-        // add_error("", "Too many redirects");
-        // let tag_match = TagMatch {
-        //     id: "".to_string(),
-        //     tag: "".to_string(),
-        //     keyword: "".to_string()
-        // }
-        let domain = attempt.url().domain().unwrap_or("");
-        let search_result = DOMAINS
-            .lock()
-            .unwrap()
-            .binary_search_by_key(&domain, |d| &*d.domain);
-        match search_result {
-            Err(_) => {}
-            Ok(index) => {
-                let tag_match = SnippetMatch {
-                    _id: DOMAINS.lock().unwrap().get(index).unwrap()._id.clone(),
-                    snippets: vec![],
-                };
-                add_match(tag_match);
-            }
-        }
-        attempt.error("Too many redirects")
-    } else if host != prev_host {
-        attempt.error("Redirected to a different hostname")
-    } else {
-        attempt.follow()
-    }
-}
-
-async fn fetch_all<'a, 's>(
-    domains: Vec<Domain>,
-    all_keywords: &'a Vec<&String>,
-) {
-    let fetches = futures::stream::iter(domains.into_iter().enumerate().map(|(index, result)| {
-        let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
-        println!("REQUEST: {} i:{}", &result.domain, index);
-        async move {
-            match send_fut.await {
-                Ok(resp) => {
-                    match resp.text().await {
-                        Ok(text) => {
-                            println!(
-                                "RESPONSE: {} bytes from {} i:{}",
-                                text.len(),
-                                &result.domain,
-                                index
-                            );
-                            let snippet_match = parse_out_tags(result._id, &text, all_keywords);
-                            // println!("FOUND {}: {:?}", result.domain, tags);
-                            add_match(snippet_match);
-                        }
-                        Err(error) => {
-                            // println!("ERROR reading {} i:{} {:?}", result.domain, index, error);
-                            let tag_match = SnippetMatch {
-                                _id: result._id,
-                                snippets: vec![],
-                            };
-                            add_match(tag_match);
-                        }
-                    }
-                }
-                Err(error) => {
-                    // println!("ERROR downloading {} i:{} {:?}", result.domain, index, error);
-                    let tag_match = SnippetMatch {
-                        _id: result._id,
-                        snippets: vec![],
-                    };
-                    add_match(tag_match);
-                }
-            }
-        }
-    }))
-        .buffer_unordered(THREADS)
-        .collect::<Vec<()>>();
-    fetches.await;
 }

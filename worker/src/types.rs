@@ -1,4 +1,5 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::hash::Hash;
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 
@@ -19,8 +20,8 @@ pub struct Tag {
     pub keywords: Vec<String>,
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Serialize, Clone)]
+#[derive(Debug, Eq, Hash, PartialEq, Serialize, Clone)]
 pub struct SnippetMatch {
     pub _id: String,
-    pub snippets: Vec<String>,
+    pub snippets: BTreeSet<String>,
 }
