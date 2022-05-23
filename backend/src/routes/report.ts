@@ -29,30 +29,32 @@ function getAverage() {
 
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-	const data = req.body as WorkerSnippets[];
-	if (!(data[0]?._id && data[0]?.snippets[0])) return NO_BODY(res);
-
+	const request = req.body as WorkerSnippets[];
+	if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
+	// console.log('Recieved: ', request);
 	const inferences = await modelInferenceArray(
-		data.flatMap((s) => s.snippets)
+		request.flatMap((s) => s.snippets)
 	);
-	const scored: ScoredWorkerSnippets[] = data.map(({ _id, snippets }, i) => ({
-		_id,
-		snippets: snippets.map((snippet, j) => ({
-			snippet,
-			score: inferences[i + j],
-		})),
-	}));
+	const scored: ScoredWorkerSnippets[] = request.map(
+		({ _id, snippets }, i) => ({
+			_id,
+			snippets: snippets.map((snippet, j) => ({
+				snippet,
+				score: inferences[i + j],
+			})),
+		})
+	);
 
 	const minLogScore = 0.85;
 	const logMetric = scored
 		.map((s) => s.snippets.filter((s) => s.score > minLogScore).length)
 		.reduce((a, b) => a + b);
 	console.log(
-		`Report: ${data.length} (${logMetric} >{minLogScore}) domains from ${req.ip}`
+		`Report: ${request.length} (${logMetric} >${minLogScore}) domains from ${req.ip}`
 	);
-	console.log(
-		scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
-	);
+	// console.log(
+	// 	scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
+	// );
 
 	// tagMatchQueue.push(...data);
 	reportBatch(scored);
