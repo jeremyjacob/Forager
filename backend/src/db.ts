@@ -229,8 +229,10 @@ export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	const batch: AnyBulkWriteOperation<{}>[] = scored.map(
 		({ _id, snippets }) => {
 			const maxScore = Math.max(...snippets.map((s) => s.score));
-			if (maxScore == -Infinity) return;
-			const { snippet } = snippets.find(({ score }) => score == maxScore);
+			const maxScoredSnippet = snippets.find(
+				({ score }) => score == maxScore
+			);
+			if (!maxScoredSnippet) return;
 			return {
 				updateOne: {
 					filter: { _id: new ObjectId(_id) },
@@ -238,7 +240,7 @@ export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 						$set: {
 							fetches: FETCHES_TARGET,
 							score: maxScore,
-							snippet,
+							snippet: maxScoredSnippet.snippet,
 						},
 						$unset: {
 							lock: null,
