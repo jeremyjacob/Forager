@@ -29,21 +29,27 @@ function getAverage() {
 
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-	const request = req.body as WorkerSnippets[];
+	let request = req.body as WorkerSnippets[];
 	if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
 	// console.log('Recieved: ', request);
 	const inferences = await modelInferenceArray(
 		request.flatMap((s) => s.snippets)
 	);
-	const scored: ScoredWorkerSnippets[] = request.map(
-		({ _id, snippets }, i) => ({
+	request = request
+		.map(({ _id, snippets }) => ({
+			_id,
+			snippets: snippets.filter((s) => s),
+		}))
+		.filter((s) => s.snippets.length);
+	const scored: ScoredWorkerSnippets[] = request
+		.filter((s) => s.snippets)
+		.map(({ _id, snippets }, i) => ({
 			_id,
 			snippets: snippets.map((snippet, j) => ({
 				snippet,
 				score: inferences[i + j],
 			})),
-		})
-	);
+		}));
 
 	const minLogScore = 0.85;
 	const logMetric = scored
