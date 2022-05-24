@@ -225,6 +225,7 @@ export async function recordFetch(amount: number) {
 
 export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	await awaitConnect();
+	if (!scored.length) return;
 	const workers = await col('domains');
 	const batch: AnyBulkWriteOperation<{}>[] = scored.map(
 		({ _id, snippets }) => {
@@ -253,7 +254,7 @@ export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	// console.log(JSON.stringify(batch));
 	try {
 		const res = await workers.bulkWrite(batch);
-		// console.log(res);
+		console.log(`Wrote report of ${batch} with response ${res}`);
 		return res;
 	} catch (error) {
 		return {
