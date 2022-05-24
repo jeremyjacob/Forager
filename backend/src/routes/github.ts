@@ -23,7 +23,7 @@ function pullRepo() {
 	executor.stderr.pipe(process.stderr);
 	executor.on('exit', () => {
 		console.log('Done!');
-		process.exit(0);
+		process.exit(10);
 	});
 }
 

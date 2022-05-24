@@ -225,23 +225,23 @@ export async function recordFetch(amount: number) {
 
 export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	await awaitConnect();
+	if (!scored.length) return;
 	const workers = await col('domains');
 	const batch: AnyBulkWriteOperation<{}>[] = scored.map(
 		({ _id, snippets }) => {
 			const maxScore = Math.max(...snippets.map((s) => s.score));
-			const { snippet } = snippets.find(({ score }) => score == maxScore);
+			const maxScoredSnippet = snippets.find(
+				({ score }) => score == maxScore
+			);
+			if (!maxScoredSnippet) return;
 			return {
 				updateOne: {
 					filter: { _id: new ObjectId(_id) },
 					update: {
-						// $addToSet: {
-						// 	tags: tag,
-						// 	['snippets.' + tag]: keyword,
-						// },
 						$set: {
 							fetches: FETCHES_TARGET,
 							score: maxScore,
-							snippet,
+							snippet: maxScoredSnippet.snippet,
 						},
 						$unset: {
 							lock: null,
@@ -254,7 +254,7 @@ export async function reportBatch(scored: ScoredWorkerSnippets[]) {
 	// console.log(JSON.stringify(batch));
 	try {
 		const res = await workers.bulkWrite(batch);
-		// console.log(res);
+		console.log(`Wrote report of ${batch} with response ${res}`);
 		return res;
 	} catch (error) {
 		return {

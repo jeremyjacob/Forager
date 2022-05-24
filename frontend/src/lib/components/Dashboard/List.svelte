@@ -26,6 +26,7 @@
 
 	// domainResults.set(test);
 	async function loadMore() {
+		if ($domainResults.length < 100) return;
 		if (loading) return;
 		loading = true;
 		const results = await loadResults();

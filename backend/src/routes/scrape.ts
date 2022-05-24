@@ -1,11 +1,9 @@
 import queryString from 'query-string';
 import { app } from '../main';
-import { makeFilter } from './results';
 import { authCheck } from '../auth';
-import { getDomains } from '../db';
+import { getDomains, getTLDs } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 import { FETCHES_TARGET } from '../config';
-import { broadcast } from './stream';
 
 function unArray(input: string | string[]) {
 	if (typeof input == 'string') return input;
@@ -13,26 +11,28 @@ function unArray(input: string | string[]) {
 	return input[0];
 }
 
-function array(input: string | string[]) {
-	if (typeof input == 'string') return [input];
-	return input;
-}
-
 // {$or: [{fetches: {$lt: 1}}, {fetches: {$exists: false}}]}
+
+export async function makeFilter(query: queryString.ParsedQuery<string>) {
+	const filter: any = {
+		TLD: { $in: await getTLDs() },
+	};
+
+	return filter;
+}
 
 app.get('/scrape', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-	console.log(`GET /scrape from ${req.ip}`);
-	broadcast('msg', 'GET /scrape');
+	// console.log(`GET /scrape from ${req.ip}`);
 	const { query } = queryString.parseUrl(req.url, {
 		arrayFormat: 'comma',
 	});
 	const limit = parseInt(unArray(query.limit) || '100');
-	const filter = await makeFilter(query);
-	const date = new Date();
-	filter.fetches = { $not: { $gte: FETCHES_TARGET } };
-	filter.lock = { $not: { $gt: date } };
-
+	const filter = {
+		TLD: { $in: await getTLDs() },
+		fetches: { $not: { $gte: FETCHES_TARGET } },
+		lock: { $not: { $gt: new Date() } },
+	};
 	const data = await await getDomains(filter, {
 		limit,
 		lock: true,

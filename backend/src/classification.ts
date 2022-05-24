@@ -14,8 +14,8 @@ child.on('exit', (e) => console.error('Python model exited', e));
 export async function modelInferenceArray(data: string[]): Promise<number[]> {
 	return new Promise((resolve) => {
 		child.stdout.on('data', (data) => {
+			child.stdout.removeAllListeners('data');
 			const results: number[] = JSON.parse(data.toString());
-			child.stdout.removeAllListeners();
 			return resolve(results);
 		});
 

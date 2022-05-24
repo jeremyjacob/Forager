@@ -50,7 +50,9 @@ app.post('/report', async (req, res) => {
 		.map((s) => s.snippets.filter((s) => s.score > minLogScore).length)
 		.reduce((a, b) => a + b);
 	console.log(
-		`Report: ${request.length} (${logMetric} >${minLogScore}) domains from ${req.ip}`
+		`Report: ${request.length} (${logMetric} >${
+			minLogScore * 100
+		}%) domains from ${req.ip}`
 	);
 	// console.log(
 	// 	scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
