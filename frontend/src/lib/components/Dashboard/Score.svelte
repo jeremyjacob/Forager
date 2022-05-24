@@ -1,20 +1,22 @@
 <script lang="ts">
-	export let tag: DataTag;
-
 	export let score: number;
+	$: num = Math.round(score * 100);
 	export let snippet: string;
 </script>
 
-{#if tag}
-	<div title={snippet}>
-		<span class="select-none p-1 bg-{tag.color}-200 dark:text-black dark:font-semibold bg-rose-500"
-			>{Math.round(score * 100)}</span
-		>
-	</div>
-{/if}
+<span title={snippet}>
+	<span
+		class="select-none p-1 dark:text-black dark:font-semibold w-9 text-sm inline-block text-center"
+		style:--hue={num}>{num}</span
+	>
+</span>
 
 <style>
 	:global(html.dark) span {
-		filter: brightness(90%) saturate(150%);
+		/* filter: brightness(90%) saturate(150%); */
+	}
+
+	span span {
+		background-color: hsl(var(--hue), 80%, 61%);
 	}
 </style>

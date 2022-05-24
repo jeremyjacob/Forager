@@ -55,13 +55,13 @@
 			height={div?.getBoundingClientRect().height}
 			width="auto"
 			itemCount={$domainResults.length}
-			itemSize={30}
+			itemSize={33}
 		>
-			<div slot="item" let:index let:style {style} class="row">
+			<tr slot="item" let:index let:style {style} class="row">
 				{#if $domainResults[index]}
 					<Domain {index} result={$domainResults[index]} />
 				{/if}
-			</div>
+			</tr>
 			<div slot="footer">
 				<InfiniteLoading on:infinite={loadMore} identifier={$domainResults} />
 			</div>

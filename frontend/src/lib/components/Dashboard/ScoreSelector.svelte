@@ -14,7 +14,7 @@
 
 <div class="p-6 pt-5 relative flex flex-col overflow-hidden dark:bg-gray-990" draggable="false">
 	<h1 class="text-3xl mb-0.5">Score</h1>
-	<h3 in:fade class="text-gray-400 dark:text-gray-300 text cursor-default select-none text-sm">
+	<h3 in:fade class="text-gray-400 dark:text-gray-300 text cursor-default# select-none text-sm">
 		Drag the slider to adjust score cut-off
 	</h3>
 	<slider-input class="flex mt-2">
@@ -50,7 +50,7 @@
 		height: 10px;
 		cursor: pointer;
 		box-shadow: 1px 1px 1px #000000;
-		background: #3071a9;
+		@apply bg-blue-400;
 		border-radius: 5px;
 		border: 1px solid #000000;
 	}
@@ -66,14 +66,14 @@
 		margin-top: -11px;
 	}
 	input[type='range']:focus::-webkit-slider-runnable-track {
-		background: #3071a9;
+		@apply bg-blue-400;
 	}
 	input[type='range']::-moz-range-track {
 		width: 100%;
 		height: 10px;
 		cursor: pointer;
 		box-shadow: 1px 1px 1px #000000;
-		background: #3071a9;
+		@apply bg-blue-400;
 		border-radius: 5px;
 		border: 1px solid #000000;
 	}

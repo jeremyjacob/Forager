@@ -23,7 +23,8 @@ type Result = {
 	domain: string;
 	fetches: ?number;
 	lock: ?(Date | string);
-	tags: ?string[];
+	// tags: ?string[];
 	TLD: string;
-	snippets: ?any;
+	score: number;
+	snippet: string;
 };
