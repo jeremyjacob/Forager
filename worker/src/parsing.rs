@@ -39,7 +39,7 @@ fn find_snippet<'a>(cow: &'a Cow<'a, str>, mat: Match) -> &'a str {
     &cow[snippet_start..snippet_end]
 }
 
-pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std::string::String>) -> SnippetMatch {
+pub fn parse_out_tags<'a>(id: String, body: &String, keywords: &Vec<&'a str>) -> SnippetMatch {
     let mut now = SystemTime::now();
     let tag_stripper = Regex::new(r"(?is:(<!--(.*?)-->)|(<script(.*?)</script>)|(<style(.*?)</style>)|(<(.*?)>))").unwrap(); // doesnt match multiline for some reason #TODO
     // println!("Stripped {} in {:.2}ms", &id, now.elapsed().unwrap().as_nanos() as f64 * 1e-6);
@@ -53,7 +53,7 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
     // println!("{}", cow);
     let ac = AhoCorasickBuilder::new()
         .ascii_case_insensitive(true)
-        .build(all_keywords);
+        .build(keywords);
     for mat in ac.find_iter(&*cow) {
         // iterate from start of match out
         let snippet = find_snippet(&cow, mat);
@@ -67,7 +67,7 @@ pub fn parse_out_tags<'a>(id: String, body: &String, all_keywords: &Vec<&'a std:
 
 pub async fn fetch_all(
     domains: Vec<Domain>,
-    all_keywords: &Vec<&String>,
+    keywords: &Vec<&str>,
 ) {
     let fetches = futures::stream::iter(domains.into_iter().enumerate().map(|(index, result)| {
         let send_fut = CLIENT.get("http://".to_owned() + &result.domain).send();
@@ -77,7 +77,7 @@ pub async fn fetch_all(
                 Ok(resp) => {
                     match resp.text().await {
                         Ok(text) => {
-                            let snippet_match = parse_out_tags(result._id, &text, all_keywords);
+                            let snippet_match = parse_out_tags(result._id, &text, keywords);
                             let count = snippet_match.snippets.len();
                             if count > 0 { println!("FOUND {}: {:?}", result.domain, count); }
                             add_match(snippet_match);

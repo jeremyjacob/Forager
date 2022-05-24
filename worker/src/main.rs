@@ -11,7 +11,7 @@ use std::time::{Duration, SystemTime};
 
 use crate::communication::*;
 use crate::config::*;
-use crate::parsing::{fetch_all, parse_out_tags};
+use crate::parsing::{fetch_all};
 use crate::types::*;
 use std::env;
 use reqwest::redirect::Policy;
@@ -53,12 +53,8 @@ static CLIENT: reqwest::Client = Client::builder()
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let tags = get_tags(&CLIENT).await?;
-    let all_keywords = tags.values().flatten().collect::<Vec<_>>();
-    let mut tag_lengths = BTreeMap::new();
-    for (name, keywords) in tags.iter() {
-        tag_lengths.insert(name, keywords.len());
-    }
+    let tags = "checkout, payment, card, processor, processing, order, apologize, sorry, paypal, accept, contact us, purchase";
+    let keywords = tags.split(", ").collect::<Vec<&str>>();
 
     start_scheduler();
 
@@ -69,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // let result: Vec<Domain> = vec![Domain { _id: "623b6ee34ce636977ebe9698".to_string(), domain: "kratomforsale.us".to_string() }];
         DOMAINS.lock().unwrap().clone_from(&result);
 
-        fetch_all(result, &all_keywords).await;
+        fetch_all(result, &keywords).await;
         // println!("{:?}", &all_keywords);
 
         let elapsed = now.elapsed()?;
