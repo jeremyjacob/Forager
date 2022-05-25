@@ -29,16 +29,12 @@ pub async fn post_results() -> () {
     if queue.len() == 0 { return; }
     // println!("POST QUEUE {:?}", queue);
     println!("POST QUEUE {:?}", queue.len());
-    match CLIENT
+    CLIENT
         .post(API_URL.to_owned() + "report")
         .json(&queue)
         .send()
-        .await {
-        Ok(_) => {}
-        Err(error) => {
-            println!("ERROR Posting Results: {}", error)
-        }
-    };
+        .await
+        .unwrap();
 }
 
 pub async fn get_tags<'a>(client: &'static reqwest::Client) -> Result<Tags, reqwest::Error> {

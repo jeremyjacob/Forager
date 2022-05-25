@@ -14,8 +14,6 @@ export function broadcast(type: BroadcastType, body: any, client?: Response) {
 	_clients.forEach((c) => c.write(`data: ${JSON.stringify(data)}\n\n`));
 }
 
-setTimeout(broadcastStats, 1000);
-
 export async function broadcastStats(client?: Response) {
 	const fetched = await getFetched();
 	const total = await getTotalDomains();
@@ -32,7 +30,8 @@ app.get('/stream', async (req, res) => {
 	res.flushHeaders(); // flush the headers to establish SSE with client
 
 	clients.add(res);
-	broadcastStats(res);
+	// broadcastStats(res);
+	setTimeout(() => broadcastStats(res), 1000);
 
 	res.on('close', () => {
 		clients.delete(res);

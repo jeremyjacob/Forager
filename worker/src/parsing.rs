@@ -80,6 +80,7 @@ pub async fn fetch_all(
                             let snippet_match = parse_out_tags(result._id, &text, keywords);
                             let count = snippet_match.snippets.len();
                             if count > 0 { println!("FOUND {}: {:?}", result.domain, count); }
+                            // println!("FOUND {}: {:?}", result.domain, count);
                             add_match(snippet_match);
                         }
                         Err(error) => {

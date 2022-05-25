@@ -63,7 +63,9 @@
 				{/if}
 			</tr>
 			<div slot="footer">
-				<InfiniteLoading on:infinite={loadMore} identifier={$domainResults} />
+				{#if $domainResults.length % 100}
+					<InfiniteLoading on:infinite={loadMore} identifier={$domainResults} />
+				{/if}
 			</div>
 		</VirtualList>
 	{/if}
