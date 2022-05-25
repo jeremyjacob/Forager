@@ -10,7 +10,7 @@
 
 	$: {
 		const secondsPassed = new Date().getTime() - startTime;
-		$rate = resultSum / secondsPassed;
+		$rate = (resultSum / secondsPassed) * 1000;
 	}
 	stream.addEventListener('message', (message) => {
 		const data = JSON.parse(message.data);

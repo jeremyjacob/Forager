@@ -59,7 +59,7 @@
 							{/if}
 						</div>
 					{/if}
-					<div>Rate: <span>{$rate}</span></div>
+					<div>Rate: <span>{$rate.toFixed(1)}</span></div>
 				</h1>
 			{:else}
 				<h1 in:upIn={{ duration: 250, delay: 250, distance: -6 }}>Forager not running</h1>
