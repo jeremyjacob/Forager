@@ -29,34 +29,27 @@ function getAverage() {
 
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-	let request = req.body as WorkerSnippets[];
+	const request = req.body as WorkerSnippets[];
 	if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
 	// console.log('Recieved: ', request);
-	const inferences = await modelInferenceArray(
-		request.flatMap((s) => s.snippets)
-	);
-	request = request
-		.map(({ _id, snippets }) => ({
-			_id,
-			snippets: snippets.filter((s) => s),
-		}))
-		.filter((s) => s.snippets.length);
-	const scored: ScoredWorkerSnippets[] = request
-		.filter((s) => s.snippets)
-		.map(({ _id, snippets }, i) => ({
-			_id,
-			snippets: snippets.map((snippet, j) => ({
-				snippet,
-				score: inferences[i + j],
-			})),
-		}));
+	const preML = request.flatMap((s) => s.snippets).filter((s) => s); // remove blank snippets
+	const inferences = await modelInferenceArray(preML);
+
+	let i = 0; // flatmap position
+	const scored: ScoredWorkerSnippets[] = request.map(({ _id, snippets }) => ({
+		_id,
+		snippets: snippets.map((snippet) => ({
+			snippet,
+			score: snippet ? inferences[i++] : 0, // if snippet was blank, instead of sending it to the ML model, just make score 0
+		})),
+	}));
 
 	const minLogScore = 0.85;
-	const logMetric = scored
+	const numOverMinScore = scored
 		.map((s) => s.snippets.filter((s) => s.score > minLogScore).length)
 		.reduce((a, b) => a + b);
 	console.log(
-		`Report: ${request.length} (${logMetric} >${
+		`Report: ${request.length} (${numOverMinScore} >${
 			minLogScore * 100
 		}%) domains from ${req.ip}`
 	);

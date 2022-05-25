@@ -45,9 +45,7 @@
 				<h1 in:upIn={{ duration: 200, delay: 50 }}>
 					{#if awsServiceData}
 						<div class="text-xs font-medium uppercase">
-							{#if awsServiceData.desiredCount > awsServiceData.runningCount && !awsServiceData.pendingCount}
-								Awaiting workers
-							{:else if awsServiceData.pendingCount}
+							{#if awsServiceData.pendingCount}
 								Scaling up workers ({awsServiceData.desiredCount -
 									awsServiceData.pendingCount}/{awsServiceData.desiredCount})
 							{:else if awsServiceData.desiredCount < awsServiceData.runningCount}
