@@ -28,7 +28,7 @@ pub async fn post_results() -> () {
 
     if queue.len() == 0 { return; }
     // println!("POST QUEUE {:?}", queue);
-    println!("POST QUEUE {:?}", queue.len());
+    // println!("POST QUEUE {:?}", queue.len());
     CLIENT
         .post(API_URL.to_owned() + "report")
         .json(&queue)
