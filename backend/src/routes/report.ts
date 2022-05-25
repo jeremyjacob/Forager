@@ -30,10 +30,10 @@ function getAverage() {
 app.post('/report', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 	const request = req.body as WorkerSnippets[];
-	if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
+	// if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
 	// console.log('Recieved: ', request);
 	const preML = request.flatMap((s) => s.snippets).filter((s) => s); // remove blank snippets
-	const inferences = await modelInferenceArray(preML);
+	const inferences = preML.length ? await modelInferenceArray(preML) : [];
 
 	let i = 0; // flatmap position
 	const scored: ScoredWorkerSnippets[] = request.map(({ _id, snippets }) => ({
@@ -59,7 +59,7 @@ app.post('/report', async (req, res) => {
 
 	// tagMatchQueue.push(...data);
 	reportBatch(scored);
-	broadcast('result', { scored });
+	broadcast('result', scored);
 
 	return res.send(scored);
 });

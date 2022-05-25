@@ -6,6 +6,7 @@
 	import { Endpoint, load } from '$lib/loader';
 	import { onMount } from 'svelte';
 	import type { DescribeServicesCommandOutput, Service } from '@aws-sdk/client-ecs';
+	import { rate } from '$lib/stores';
 
 	$: desiredCount = awsServiceData?.desiredCount ?? 0;
 	let updatesFrozen = false;
@@ -58,7 +59,7 @@
 							{/if}
 						</div>
 					{/if}
-					<div>Rate: <span>?</span></div>
+					<div>Rate: <span>{$rate}</span></div>
 				</h1>
 			{:else}
 				<h1 in:upIn={{ duration: 250, delay: 250, distance: -6 }}>Forager not running</h1>

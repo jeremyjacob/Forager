@@ -1,15 +1,24 @@
 // spawn child python process to run the model
 
-import { spawn } from 'child_process';
+import { type ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
-const child = spawn('python3', ['forager_finetune_distilbert.py'], {
-	cwd: './classification',
-});
+let child: ChildProcessWithoutNullStreams;
+spawnClassifier();
 
-child.stderr.on('data', (e) =>
-	console.error('Python model error', e.toString())
-);
-child.on('exit', (e) => console.error('Python model exited', e));
+function spawnClassifier() {
+	child = spawn('python3', ['forager_finetune_distilbert.py'], {
+		cwd: './classification',
+	});
+
+	child.stderr.on('data', (e) =>
+		console.error('Python model error', e.toString())
+	);
+
+	child.on('exit', () => {
+		console.log('Restarting python model...');
+		spawnClassifier();
+	});
+}
 
 export async function modelInferenceArray(data: string[]): Promise<number[]> {
 	return new Promise((resolve) => {

@@ -3,12 +3,20 @@
 
 	import { upIn } from '$lib/animations';
 	import { stream } from '$lib/stream';
+	import { rate } from '$lib/stores';
 
-	let logs = [];
+	let resultSum = 0;
+	let startTime = new Date().getTime();
+
+	$: {
+		const secondsPassed = new Date().getTime() - startTime;
+		$rate = resultSum / secondsPassed;
+	}
 	stream.addEventListener('message', (message) => {
 		const data = JSON.parse(message.data);
 		if (data.type == 'result') {
 			console.log(data.body);
+			resultSum += data.body.length;
 		}
 	});
 </script>
