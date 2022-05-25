@@ -14,6 +14,8 @@ export function broadcast(type: BroadcastType, body: any, client?: Response) {
 	_clients.forEach((c) => c.write(`data: ${JSON.stringify(data)}\n\n`));
 }
 
+setTimeout(broadcastStats, 1000);
+
 export async function broadcastStats(client?: Response) {
 	const fetched = await getFetched();
 	const total = await getTotalDomains();

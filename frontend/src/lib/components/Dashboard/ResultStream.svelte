@@ -7,7 +7,9 @@
 	let logs = [];
 	stream.addEventListener('message', (message) => {
 		const data = JSON.parse(message.data);
-		console.log('Stream:', data);
+		if (data.type == 'result') {
+			console.log(data.body);
+		}
 	});
 </script>
 

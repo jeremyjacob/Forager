@@ -60,7 +60,6 @@ app.post('/report', async (req, res) => {
 	// tagMatchQueue.push(...data);
 	reportBatch(scored);
 	broadcast('result', { scored });
-	broadcastStats();
 
 	return res.send(scored);
 });
