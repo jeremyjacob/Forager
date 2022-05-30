@@ -1,11 +1,9 @@
 import { app } from '../main';
-import type { ScoredWorkerSnippets, WorkerSnippets } from '../types';
+import type { WorkerSnippets } from '../types';
 import { authCheck } from '../auth';
 import { reportBatch } from '../db';
-import { NO_BODY, UNAUTHENTICATED } from '../responses';
-import { broadcast, broadcastStats } from './stream';
-import { ObjectId } from 'mongodb';
-import { modelInferenceArray } from '../classification';
+import { UNAUTHENTICATED } from '../responses';
+import { broadcast } from './stream';
 
 let averages = [];
 function addDatum(size: number) {
@@ -32,34 +30,14 @@ app.post('/report', async (req, res) => {
 	const request = req.body as WorkerSnippets[];
 	// if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
 	// console.log('Recieved: ', request);
-	const preML = request.flatMap((s) => s.snippets).filter((s) => s); // remove blank snippets
-	const inferences = preML.length ? await modelInferenceArray(preML) : [];
-
-	let i = 0; // flatmap position
-	const scored: ScoredWorkerSnippets[] = request.map(({ _id, snippets }) => ({
-		_id,
-		snippets: snippets.map((snippet) => ({
-			snippet,
-			score: snippet ? inferences[i++] : 0, // if snippet was blank, instead of sending it to the ML model, just make score 0
-		})),
-	}));
-
-	const minLogScore = 0.85;
-	const numOverMinScore = scored
-		.map((s) => s.snippets.filter((s) => s.score > minLogScore).length)
-		.reduce((a, b) => a + b);
-	console.log(
-		`Report: ${request.length} (${numOverMinScore} >${
-			minLogScore * 100
-		}%) domains from ${req.ip}`
-	);
+	console.log(`Report: ${request.length} domains from ${req.ip}`);
 	// console.log(
 	// 	scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
 	// );
 
 	// tagMatchQueue.push(...data);
-	reportBatch(scored);
-	broadcast('result', scored);
+	reportBatch(request);
+	broadcast('result', request);
 
-	return res.send(scored);
+	return res.send(request);
 });

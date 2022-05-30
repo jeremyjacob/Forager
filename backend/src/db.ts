@@ -11,7 +11,6 @@ import {
 import { generateSalt, hasher } from './hasher';
 import type {
 	DataTag,
-	ScoredWorkerSnippets,
 	User,
 	WorkerSnippets,
 } from './types';
@@ -223,34 +222,28 @@ export async function recordFetch(amount: number) {
 	return !!progress.upsertedCount;
 }
 
-export async function reportBatch(scored: ScoredWorkerSnippets[]) {
+export async function reportBatch(data: WorkerSnippets[]) {
 	await awaitConnect();
-	if (!scored.length) return;
+	if (!data.length) return;
 	const workers = await col('domains');
-	const batch: AnyBulkWriteOperation<{}>[] = scored.map(
-		({ _id, snippets }) => {
-			const maxScore = Math.max(...snippets.map((s) => s.score));
-			const maxScoredSnippet = snippets.find(
-				({ score }) => score == maxScore
-			);
-			if (!maxScoredSnippet) return;
-			return {
-				updateOne: {
-					filter: { _id: new ObjectId(_id) },
-					update: {
-						$set: {
-							fetches: FETCHES_TARGET,
-							score: maxScore,
-							snippet: maxScoredSnippet.snippet,
-						},
-						$unset: {
-							lock: null,
-						},
+	const batch: AnyBulkWriteOperation<{}>[] = data.map(({ _id, snippets }) => {
+		return {
+			updateOne: {
+				filter: { _id: new ObjectId(_id) },
+				update: {
+					$set: {
+						fetches: FETCHES_TARGET,
+					},
+					$addToSet: {
+						snippets: { $each: snippets },
+					},
+					$unset: {
+						lock: null,
 					},
 				},
-			};
-		}
-	);
+			},
+		};
+	});
 	// console.log(JSON.stringify(batch));
 	try {
 		const res = await workers.bulkWrite(batch);

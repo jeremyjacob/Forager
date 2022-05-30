@@ -13,11 +13,6 @@ type WorkerSnippets = {
 	snippets: string[];
 };
 
-type ScoredWorkerSnippets = {
-	_id: string;
-	snippets: { snippet: string; score?: number }[];
-};
-
 type DataTag = {
 	name: string;
 	color: string;
