@@ -11,7 +11,8 @@ export const API_KEY = process.env.FORAGER_API_KEY;
 export async function authCheck(req: Request) {
 	const session = req.cookies?.session_id;
 	const hasSession = await getSession(session);
-	const attemptKey = req.headers?.authorization?.replace(/[^A-Za-z0-9]/g, ''); // Strip non-alpha-numeric
-	const apiKey = attemptKey === API_KEY || attemptKey === 'Bearer ' + API_KEY;
-	return hasSession || apiKey;
+	const attemptKey = req.headers?.authorization
+		?.replace('Bearer', '')
+		.replace(/[^A-Za-z0-9]/g, ''); // Strip non-alpha-numeric
+	return hasSession || attemptKey === API_KEY;
 }
