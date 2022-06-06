@@ -14,13 +14,15 @@ function unArray(input: string | string[]) {
 app.get('/scoring', async (req, res) => {
 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
 
+	const { query } = queryString.parseUrl(req.url);
+	const skip = parseInt(unArray(query.skip));
 	const filter = {
 		TLD: { $in: await getTLDs() },
 		score: { $exists: false },
 		snippets: { $exists: true, $type: 'array', $ne: [] },
 	};
 
-	const data = await getDomains(filter, { limit: 10000 });
+	const data = await getDomains(filter, { limit: 10000, skip });
 	let body: WithId<Document>[] = data;
 
 	return res.send(body);

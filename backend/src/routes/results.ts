@@ -5,7 +5,7 @@ import { authCheck } from '../auth';
 import { getDomains, getNumberDomains, getTLDs } from '../db';
 import { UNAUTHENTICATED } from '../responses';
 
-function unArray(input: string | string[]) {
+export function unArray(input: string | string[]) {
 	if (typeof input == 'string') return input;
 	if (input == null) return null;
 	return input[0];
@@ -28,7 +28,7 @@ app.get('/results', async (req, res) => {
 
 	const data = await getDomains(filter, {
 		limit,
-		skip: parseInt(unArray(skip)),
+		skip: parseInt(skip),
 	});
 	let body: WithId<Document>[] = data;
 
