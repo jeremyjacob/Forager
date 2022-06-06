@@ -17,7 +17,7 @@ app.get('/scoring', async (req, res) => {
 	const filter = {
 		TLD: { $in: await getTLDs() },
 		score: { $exists: false },
-		snippets: { $size: { $gt: 0 } },
+		snippets: { $exists: true, $type: 'array', $ne: [] },
 	};
 
 	const data = await getDomains(filter, { limit: 10000 });
