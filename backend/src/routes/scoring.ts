@@ -40,7 +40,7 @@ app.post('/scoring', async (req, res) => {
 	const request = req.body as ScoredSnippet[];
 	// if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
 	// console.log('Recieved: ', request);
-	print(request);
+	console.log(request);
 	console.log(`Report: ${request.length} scores from ${req.ip}`);
 	// console.log(
 	// 	scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
