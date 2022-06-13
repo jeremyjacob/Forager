@@ -9,11 +9,7 @@ import {
 } from 'mongodb';
 
 import { generateSalt, hasher } from './hasher';
-import type {
-	DataTag,
-	User,
-	WorkerSnippets,
-} from './types';
+import type { DataTag, ScoredSnippet, User, WorkerSnippets } from './types';
 import { timeout } from './utils';
 import { FETCHES_TARGET } from './config';
 
@@ -225,7 +221,8 @@ export async function recordFetch(amount: number) {
 export async function reportBatch(data: WorkerSnippets[]) {
 	await awaitConnect();
 	if (!data.length) return;
-	const workers = await col('domains');
+	const ref = await col('ref');
+	const domains = await col('domains');
 	const batch: AnyBulkWriteOperation<{}>[] = data.map(({ _id, snippets }) => {
 		return {
 			updateOne: {
@@ -246,8 +243,45 @@ export async function reportBatch(data: WorkerSnippets[]) {
 	});
 	// console.log(JSON.stringify(batch));
 	try {
-		const res = await workers.bulkWrite(batch);
+		const res = await domains.bulkWrite(batch);
+		await ref.updateOne({ name: 'progress' }, { $inc: { scraped: 1 } });
 		console.log(`Wrote report of ${batch} with response ${res}`);
+		return res;
+	} catch (error) {
+		return {
+			error,
+			matchedCount: null,
+		};
+	}
+}
+
+export async function reportScores(data: ScoredSnippet[]) {
+	await awaitConnect();
+	if (!data.length) return;
+	const domains = await col('domains');
+	const ref = await col('ref');
+	const batch: AnyBulkWriteOperation<{}>[] = data.map(
+		({ _id, snippet, score }) => {
+			return {
+				updateOne: {
+					filter: { _id: new ObjectId(_id) },
+					update: {
+						$addToSet: {
+							scores: [snippet, score],
+						},
+					},
+				},
+			};
+		}
+	);
+	// console.log(JSON.stringify(batch));
+	try {
+		const res = await domains.bulkWrite(batch);
+		await ref.updateOne(
+			{ name: 'progress' },
+			{ $inc: { scored: data.length } }
+		);
+		// console.log(`Wrote scores of ${batch} with response ${res}`);
 		return res;
 	} catch (error) {
 		return {

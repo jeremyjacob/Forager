@@ -2,8 +2,15 @@ import type { WithId, Document } from 'mongodb';
 import queryString from 'query-string';
 import { app } from '../main';
 import { authCheck } from '../auth';
-import { getDomains, getNumberDomains, getTLDs } from '../db';
+import {
+	getDomains,
+	getNumberDomains,
+	getTLDs,
+	reportBatch,
+	reportScores,
+} from '../db';
 import { UNAUTHENTICATED } from '../responses';
+import type { ScoredSnippet } from 'src/types';
 
 function unArray(input: string | string[]) {
 	if (typeof input == 'string') return input;
@@ -18,7 +25,7 @@ app.get('/scoring', async (req, res) => {
 	const skip = parseInt(unArray(query.skip));
 	const filter = {
 		TLD: { $in: await getTLDs() },
-		score: { $exists: false },
+		scores: { $exists: false },
 		snippets: { $exists: true, $type: 'array', $ne: [] },
 	};
 
@@ -28,21 +35,19 @@ app.get('/scoring', async (req, res) => {
 	return res.send(body);
 });
 
-type ScoredSnippet = {};
+app.post('/scoring', async (req, res) => {
+	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
+	const request = req.body as ScoredSnippet[];
+	// if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
+	// console.log('Recieved: ', request);
+	console.log(`Report: ${request.length} domains from ${req.ip}`);
+	// console.log(
+	// 	scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
+	// );
 
-// app.post('/scoring', async (req, res) => {
-// 	if (!(await authCheck(req))) return UNAUTHENTICATED(res);
-// 	const request = req.body as WorkerSnippets[];
-// 	// if (!(request[0]?._id && request[0]?.snippets[0])) return NO_BODY(res);
-// 	// console.log('Recieved: ', request);
-// 	console.log(`Report: ${request.length} domains from ${req.ip}`);
-// 	// console.log(
-// 	// 	scored.map((s) => s.snippets.filter((s) => s.score > minLogScore))
-// 	// );
+	// tagMatchQueue.push(...data);
+	reportScores(request);
+	// broadcast('result', request);
 
-// 	// tagMatchQueue.push(...data);
-// 	reportBatch(request);
-// 	broadcast('result', request);
-
-// 	return res.send(request);
-// });
+	return res.send(request);
+});

@@ -21,3 +21,9 @@ type DataTag = {
 	selected?: boolean;
 	time?: number;
 };
+
+type ScoredSnippet = {
+	_id: string;
+	score: number;
+	snippet: string;
+};
