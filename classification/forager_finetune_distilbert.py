@@ -192,7 +192,6 @@ def train():
 
 
 API_KEY = "h7u4huatuhfnbvz4knxjfhwapjfg6zjfbsiug37yhks90ruyhsjdhf723hu"
-queue = []
 
 
 def main():
@@ -245,9 +244,11 @@ def main():
         headers["Authorization"] = API_KEY
 
         response = requests.get(
-            'https://forager.jeremyjacob.dev/api/scoring?skip=170000',
+            'https://forager.jeremyjacob.dev/api/scoring?skip=0',
             headers=headers)
         data = response.json()
+        if (len(data) == 0):
+            exit()
         # data = data[:5]
 
         print('Fetched data')
@@ -262,6 +263,7 @@ def main():
         for i in range(0, len(flattened), chunk_size):
             chunked_list.append(flattened[i:i + chunk_size])
 
+        queue = []
         for chunk in chunked_list:
             # Tokenize inputs
             inputs = tokenizer([c['snippet'] for c in chunk],
@@ -281,6 +283,9 @@ def main():
             for (index, score) in enumerate(scores):
                 chunk[index]['score'] = score
             queue.extend(chunk)
+            if len(queue) >= 1000:
+                post(queue)
+                queue = []
 
             # if scores:
             #     for tupl in merged:
@@ -288,23 +293,21 @@ def main():
             #             # pass
             #             print(tupl)
 
-    start = time.time()
-    run_batch()
-    print(f"Batch {time.time() - start}s")
+    while True:
+        start = time.time()
+        run_batch()
+        print(f"Batch {time.time() - start}s")
 
 
-def post():
+def post(queue):
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
     headers["Authorization"] = API_KEY
-
+    print(f'Posting {len(queue)} records')
     requests.post('https://forager.jeremyjacob.dev/api/scoring',
-                  data=json.dumps(queue),
+                  json=queue,
                   headers=headers)
-    queue = []
 
 
 if __name__ == '__main__':
     main()
-    schedule.every(1).seconds.do(post)
-    # schedule every second

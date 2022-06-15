@@ -267,7 +267,7 @@ export async function reportScores(data: ScoredSnippet[]) {
 					filter: { _id: new ObjectId(_id) },
 					update: {
 						$addToSet: {
-							scores: [snippet, score],
+							scored: { snippet, score },
 						},
 					},
 				},
